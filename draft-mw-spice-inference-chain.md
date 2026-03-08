@@ -50,7 +50,7 @@ organization = "Aryaka"
 
 .# Abstract
 
-This document defines the `inference_root` claim as a companion to the `actor_chain` claim ([[!I-D.draft-mw-spice-actor-chain]]) and the `intent_root` claim ([[!I-D.draft-mw-spice-intent-chain]]). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.
+This document defines the `inference_root` claim as a companion to the `actor_chain` claim ({{!I-D.draft-mw-spice-actor-chain}}) and the `intent_root` claim ({{!I-D.draft-mw-spice-intent-chain}}). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.
 
 The inference chain leverages two complementary mechanisms: Zero-Knowledge Machine Learning (ZKML) proofs for mathematical certainty, and Trusted Execution Environment (TEE) attestation quotes for production-scale AI workloads. The full inference chain is stored as ordered logs, with only the merkle root included in the OAuth token for efficiency.
 
@@ -62,7 +62,7 @@ Together, the three chains — actor, intent, and inference — form a complete 
 
 ## The Problem: Computational Spoofing
 
-The Actor Chain ([[!I-D.draft-mw-spice-actor-chain]]) proves WHO delegated to whom. The Intent Chain ([[!I-D.draft-mw-spice-intent-chain]]) proves WHAT was produced and how it was transformed. Neither addresses a critical remaining gap: was the **claimed computational process** actually used to produce the output?
+The Actor Chain ({{!I-D.draft-mw-spice-actor-chain}}) proves WHO delegated to whom. The Intent Chain ({{!I-D.draft-mw-spice-intent-chain}}) proves WHAT was produced and how it was transformed. Neither addresses a critical remaining gap: was the **claimed computational process** actually used to produce the output?
 
 In AI agent workflows, an agent may claim to use a high-capability, safety-aligned model (e.g., a frontier model with RLHF alignment) while actually running a cheaper, unaligned model. This "Model Masquerading" attack is undetectable by content hashes alone — the output hash in the intent chain proves the output exists, but not that the claimed model produced it.
 
@@ -79,8 +79,8 @@ This specification completes the three-axis "Truth Stack":
 
 | Specification | Axis | Question Answered | STRIDE Coverage |
 | :--- | :--- | :--- | :--- |
-| **Actor Chain** ([[!I-D.draft-mw-spice-actor-chain]]) | Identity | WHO delegated to whom? | Spoofing, Repudiation, Elevation of Privilege |
-| **Intent Chain** ([[!I-D.draft-mw-spice-intent-chain]]) | Content | WHAT was produced and transformed? | Repudiation, Tampering |
+| **Actor Chain** ({{!I-D.draft-mw-spice-actor-chain}}) | Identity | WHO delegated to whom? | Spoofing, Repudiation, Elevation of Privilege |
+| **Intent Chain** ({{!I-D.draft-mw-spice-intent-chain}}) | Content | WHAT was produced and transformed? | Repudiation, Tampering |
 | **Inference Chain** (this document) | Computation | HOW was the output computed? | Spoofing (computational), Tampering (model) |
 
 | Chain | Plane | Token Content | Full Chain | Primary Consumer |
@@ -105,7 +105,7 @@ The three chains are independent and composable:
 
 # Terminology
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here.
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all capitals, as shown here.
 
 Inference Chain:
 : An ordered sequence of Inference Chain Entries providing cryptographic proof of the computational processes that produced AI agent outputs within a session.
@@ -123,7 +123,7 @@ ZKML Proof:
 : A Zero-Knowledge proof (SNARK or STARK) demonstrating that a specific neural network with specific weights produced a specific output from a specific input, without revealing the model weights or input data.
 
 TEE Quote:
-: A hardware-signed attestation from a Trusted Execution Environment (e.g., Intel TDX, AMD SEV-SNP, NVIDIA H100 Confidential Computing) proving that specific code ran within a verified enclave with specific measurements. TEE attestation follows the RATS architecture [[RFC9334]].
+: A hardware-signed attestation from a Trusted Execution Environment (e.g., Intel TDX, AMD SEV-SNP, NVIDIA H100 Confidential Computing) proving that specific code ran within a verified enclave with specific measurements. TEE attestation follows the RATS architecture {{!RFC9334}}.
 
 Model Fingerprint:
 : A cryptographic hash of the model weights, architecture definition, and inference configuration, uniquely identifying the computational process.
@@ -283,7 +283,7 @@ All inference chain entries share common fields:
 | `inference_digest` | string | REQUIRED | Cumulative hash for merkle tree |
 | `inference_sig` | string | REQUIRED | Signature over `inference_digest` |
 
-The `sub` field identifies the agent that performed inference. It corresponds to the `sub` field of the matching actor chain entry ([[!I-D.draft-mw-spice-actor-chain]]).
+The `sub` field identifies the agent that performed inference. It corresponds to the `sub` field of the matching actor chain entry ({{!I-D.draft-mw-spice-actor-chain}}).
 
 ## Binding to Intent Chain
 
@@ -352,7 +352,7 @@ Implementations SHOULD use an append-only log with tamper-evident guarantees and
 
 ## Merkle Tree Construction
 
-The inference chain merkle tree follows the same construction algorithm as the intent chain (defined in [[!I-D.draft-mw-spice-intent-chain]] Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the `inference_root` claim.
+The inference chain merkle tree follows the same construction algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-intent-chain}} Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the `inference_root` claim.
 
 ## Merkle Root in Token
 
@@ -470,7 +470,7 @@ To verify a TEE attestation entry:
 
 ## Tiered Verification
 
-Inference verification extends the tiered strategy from [[!I-D.draft-mw-spice-intent-chain]]:
+Inference verification extends the tiered strategy from {{!I-D.draft-mw-spice-intent-chain}}:
 
 | Risk Level | Actor Chain | Intent Chain | Inference Chain | Use Case |
 | :--- | :--- | :--- | :--- | :--- |
@@ -537,8 +537,8 @@ block_deprecated_models {
 
 The inference chain claims are designed for consumption by policy engines such as Open Policy Agent (OPA). A policy engine SHOULD:
 
-1. Verify actor chain integrity (per [[!I-D.draft-mw-spice-actor-chain]]).
-2. Verify intent chain integrity (per [[!I-D.draft-mw-spice-intent-chain]]).
+1. Verify actor chain integrity (per {{!I-D.draft-mw-spice-actor-chain}}).
+2. Verify intent chain integrity (per {{!I-D.draft-mw-spice-intent-chain}}).
 3. Verify `inference_root` and `inference_registry` are present and non-empty.
 4. Evaluate deployment-specific requirements such as proof type (ZKML vs TEE), model version policies, and hardware platform requirements.
 
@@ -596,7 +596,7 @@ STARK-based proofs can be tens of kilobytes. The merkle tree architecture ensure
 
 ## Relationship to Proof of Residency
 
-The inference chain's TEE attestation entries are complementary to, but distinct from, the Proof of Residency (PoR) in actor chain entries ([[!I-D.draft-mw-spice-transitive-attestation]]):
+The inference chain's TEE attestation entries are complementary to, but distinct from, the Proof of Residency (PoR) in actor chain entries ({{!I-D.draft-mw-spice-transitive-attestation}}):
 
 - **PoR** (in actor chain): Proves the agent's IDENTITY is bound to a TEE. Answers "Is this agent running in a secure environment?"
 - **TEE Quote** (in inference chain): Proves a specific COMPUTATION ran in a TEE. Answers "Did this model execution happen inside an enclave?"
@@ -617,7 +617,7 @@ Both proof types include `input_hash` rather than the raw input, providing input
 
 ## Selective Disclosure
 
-Inference chain entries MAY use Selective Disclosure (SD-JWT) [[!I-D.ietf-oauth-selective-disclosure-jwt]] to hide sensitive fields such as `model_id` or `platform` from certain verifiers while maintaining proof integrity.
+Inference chain entries MAY use Selective Disclosure (SD-JWT) {{!I-D.ietf-oauth-selective-disclosure-jwt}} to hide sensitive fields such as `model_id` or `platform` from certain verifiers while maintaining proof integrity.
 
 # Implementation Guidance
 
@@ -644,13 +644,13 @@ For TEE-based inference proofs:
 
 # Design Rationale: Merkle Root in Token
 
-The inference chain follows the same merkle root architecture as the intent chain (see [[!I-D.draft-mw-spice-intent-chain]] Design Rationale for the detailed comparison). The same trade-offs apply, with additional motivation: inference proofs are large (STARK proofs ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens impractical. The merkle root enables selective verification of individual proofs using O(log n) sibling hashes, which is critical for the tiered verification strategy.
+The inference chain follows the same merkle root architecture as the intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design Rationale for the detailed comparison). The same trade-offs apply, with additional motivation: inference proofs are large (STARK proofs ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens impractical. The merkle root enables selective verification of individual proofs using O(log n) sibling hashes, which is critical for the tiered verification strategy.
 
 # IANA Considerations
 
 ## JWT Claim Registration
 
-This document requests registration of the following claims in the "JSON Web Token Claims" registry established by [[RFC7519]]:
+This document requests registration of the following claims in the "JSON Web Token Claims" registry established by {{!RFC7519}}:
 
 - **Claim Name**: `inference_root`
 - **Claim Description**: Merkle root hash of the inference chain for computational provenance verification.
@@ -669,7 +669,7 @@ This document requests registration of the following claims in the "JSON Web Tok
 
 ## CWT Claim Registration
 
-This document requests registration of the following claims in the "CBOR Web Token (CWT) Claims" registry established by [[RFC8392]]:
+This document requests registration of the following claims in the "CBOR Web Token (CWT) Claims" registry established by {{!RFC8392}}:
 
 - **Claim Name**: `inference_root`
 - **Claim Description**: Merkle root hash of the inference chain.

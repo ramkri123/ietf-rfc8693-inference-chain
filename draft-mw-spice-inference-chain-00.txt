@@ -20,8 +20,8 @@ Cryptographically Verifiable Inference Chain for AI Agent Computational
 Abstract
 
    This document defines the inference_root claim as a companion to the
-   actor_chain claim ([[!I-D.draft-mw-spice-actor-chain]]) and the
-   intent_root claim ([[!I-D.draft-mw-spice-intent-chain]]).  While the
+   actor_chain claim ({{!I-D.draft-mw-spice-actor-chain}}) and the
+   intent_root claim ({{!I-D.draft-mw-spice-intent-chain}}).  While the
    actor chain addresses delegation provenance (WHO) and the intent
    chain addresses content provenance (WHAT), the inference chain
    addresses computational provenance (HOW) — providing cryptographic
@@ -149,9 +149,9 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 1.1.  The Problem: Computational Spoofing
 
-   The Actor Chain ([[!I-D.draft-mw-spice-actor-chain]]) proves WHO
-   delegated to whom.  The Intent Chain ([[!I-D.draft-mw-spice-intent-
-   chain]]) proves WHAT was produced and how it was transformed.
+   The Actor Chain ({{!I-D.draft-mw-spice-actor-chain}}) proves WHO
+   delegated to whom.  The Intent Chain ({{!I-D.draft-mw-spice-intent-
+   chain}}) proves WHAT was produced and how it was transformed.
    Neither addresses a critical remaining gap: was the *claimed
    computational process* actually used to produce the output?
 
@@ -193,14 +193,14 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
     |                 |             | Answered     |                  |
     +=================+=============+==============+==================+
     | *Actor Chain*   | Identity    | WHO          | Spoofing,        |
-    | ([[!I-D.draft-  |             | delegated to | Repudiation,     |
+    | ({{!I-D.draft-  |             | delegated to | Repudiation,     |
     | mw-spice-actor- |             | whom?        | Elevation of     |
-    | chain]])        |             |              | Privilege        |
+    | chain}})        |             |              | Privilege        |
     +-----------------+-------------+--------------+------------------+
     | *Intent Chain*  | Content     | WHAT was     | Repudiation,     |
-    | ([[!I-D.draft-  |             | produced and | Tampering        |
+    | ({{!I-D.draft-  |             | produced and | Tampering        |
     | mw-spice-       |             | transformed? |                  |
-    | intent-chain]]) |             |              |                  |
+    | intent-chain}}) |             |              |                  |
     +-----------------+-------------+--------------+------------------+
     | *Inference      | Computation | HOW was the  | Spoofing         |
     | Chain* (this    |             | output       | (computational), |
@@ -272,7 +272,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
    "OPTIONAL" in this document are to be interpreted as described in BCP
-   14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all
+   14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all
    capitals, as shown here.
 
 
@@ -300,7 +300,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
       Environment (e.g., Intel TDX, AMD SEV-SNP, NVIDIA H100
       Confidential Computing) proving that specific code ran within a
       verified enclave with specific measurements.  TEE attestation
-      follows the RATS architecture [[RFC9334]].
+      follows the RATS architecture {{!RFC9334}}.
    Model Fingerprint:  A cryptographic hash of the model weights,
       architecture definition, and inference configuration, uniquely
       identifying the computational process.
@@ -656,8 +656,8 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
                                   Table 6
 
    The sub field identifies the agent that performed inference.  It
-   corresponds to the sub field of the matching actor chain entry ([[!I-
-   D.draft-mw-spice-actor-chain]]).
+   corresponds to the sub field of the matching actor chain entry ({{!I-
+   D.draft-mw-spice-actor-chain}}).
 
 4.2.  Binding to Intent Chain
 
@@ -750,8 +750,8 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 5.2.  Merkle Tree Construction
 
    The inference chain merkle tree follows the same construction
-   algorithm as the intent chain (defined in [[!I-D.draft-mw-spice-
-   intent-chain]] Section 5.3).  Leaf nodes are the SHA-256 hashes of
+   algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-
+   intent-chain}} Section 5.3).  Leaf nodes are the SHA-256 hashes of
    canonically serialized inference chain entries.  The resulting root
    hash is included in the OAuth token as the inference_root claim.
 
@@ -972,8 +972,8 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 7.4.  Tiered Verification
 
-   Inference verification extends the tiered strategy from [[!I-D.draft-
-   mw-spice-intent-chain]]:
+   Inference verification extends the tiered strategy from {{!I-D.draft-
+   mw-spice-intent-chain}}:
 
    +============+=============+==============+===========+=============+
    | Risk Level | Actor Chain | Intent       | Inference | Use Case    |
@@ -1066,10 +1066,10 @@ Krishnan, et al.        Expires 9 September 2026               [Page 19]
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
-   1.  Verify actor chain integrity (per [[!I-D.draft-mw-spice-actor-
-       chain]]).
-   2.  Verify intent chain integrity (per [[!I-D.draft-mw-spice-intent-
-       chain]]).
+   1.  Verify actor chain integrity (per {{!I-D.draft-mw-spice-actor-
+       chain}}).
+   2.  Verify intent chain integrity (per {{!I-D.draft-mw-spice-intent-
+       chain}}).
    3.  Verify inference_root and inference_registry are present and non-
        empty.
    4.  Evaluate deployment-specific requirements such as proof type
@@ -1187,7 +1187,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
    The inference chain's TEE attestation entries are complementary to,
    but distinct from, the Proof of Residency (PoR) in actor chain
-   entries ([[!I-D.draft-mw-spice-transitive-attestation]]):
+   entries ({{!I-D.draft-mw-spice-transitive-attestation}}):
 
    *  *PoR* (in actor chain): Proves the agent's IDENTITY is bound to a
       TEE.  Answers "Is this agent running in a secure environment?"
@@ -1222,8 +1222,8 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 10.3.  Selective Disclosure
 
-   Inference chain entries MAY use Selective Disclosure (SD-JWT) [[!I-
-   D.ietf-oauth-selective-disclosure-jwt]] to hide sensitive fields such
+   Inference chain entries MAY use Selective Disclosure (SD-JWT) {{!I-
+   D.ietf-oauth-selective-disclosure-jwt}} to hide sensitive fields such
    as model_id or platform from certain verifiers while maintaining
    proof integrity.
 
@@ -1274,7 +1274,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 12.  Design Rationale: Merkle Root in Token
 
    The inference chain follows the same merkle root architecture as the
-   intent chain (see [[!I-D.draft-mw-spice-intent-chain]] Design
+   intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design
    Rationale for the detailed comparison).  The same trade-offs apply,
    with additional motivation: inference proofs are large (STARK proofs
    ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens
@@ -1295,7 +1295,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 13.1.  JWT Claim Registration
 
    This document requests registration of the following claims in the
-   "JSON Web Token Claims" registry established by [[RFC7519]]:
+   "JSON Web Token Claims" registry established by {{!RFC7519}}:
 
    *  *Claim Name*: inference_root
 
@@ -1327,7 +1327,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 13.2.  CWT Claim Registration
 
    This document requests registration of the following claims in the
-   "CBOR Web Token (CWT) Claims" registry established by [[RFC8392]]:
+   "CBOR Web Token (CWT) Claims" registry established by {{!RFC8392}}:
 
    *  *Claim Name*: inference_root
 
