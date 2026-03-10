@@ -105,7 +105,7 @@
 <tr>
 <td align="left"><strong>Intent</strong></td>
 <td align="left">Audit Plane</td>
-<td align="left">Merkle root only</td>
+<td align="left">merkle root only</td>
 <td align="left">External registry</td>
 <td align="left">Audit systems, forensic investigators</td>
 </tr>
@@ -113,7 +113,7 @@
 <tr>
 <td align="left"><strong>Inference</strong></td>
 <td align="left">Audit Plane</td>
-<td align="left">Merkle root only</td>
+<td align="left">merkle root only</td>
 <td align="left">External registry</td>
 <td align="left">Auditors, compliance systems</td>
 </tr>
@@ -535,16 +535,16 @@
 ]]></sourcecode>
 </section>
 
-<section anchor="merkle-tree-construction"><name>Merkle Tree Construction</name>
+<section anchor="merkle-tree-construction"><name>merkle Tree Construction</name>
 <t>The inference chain merkle tree follows the same construction algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-intent-chain}} Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the <tt>inference_root</tt> claim.</t>
 </section>
 
-<section anchor="merkle-root-in-token"><name>Merkle Root in Token</name>
+<section anchor="merkle-root-in-token"><name>merkle Root in Token</name>
 <t>Only the merkle root is included in the OAuth token:</t>
 
 <sourcecode type="json"><![CDATA[{
   "inference_root": "sha256:xyz789...",
-  "inference_alg": "groth16",
+  "inference_proof_type": "groth16",
   "inference_registry":
     "https://proof-log.example.com"
 }
@@ -564,11 +564,11 @@
 <td align="left"><tt>inference_root</tt></td>
 <td align="left">string</td>
 <td align="left">REQUIRED</td>
-<td align="left">Merkle root hash of inference chain</td>
+<td align="left">merkle root hash of inference chain</td>
 </tr>
 
 <tr>
-<td align="left"><tt>inference_alg</tt></td>
+<td align="left"><tt>inference_proof_type</tt></td>
 <td align="left">string</td>
 <td align="left">OPTIONAL</td>
 <td align="left">Primary proof algorithm used (e.g., <tt>groth16</tt>, <tt>tee_tdx</tt>, <tt>hybrid</tt>)</td>
@@ -594,6 +594,7 @@
   "sub": "user-alice",
   "aud": "https://api.example.com",
   "jti": "tok-eee-12345",
+  "sid": "sess-uuid-12345",
   "iat": 1700000000,
   "exp": 1700003600,
 
@@ -610,19 +611,13 @@
       "sub":
         "spiffe://example.com/agent/orchestrator",
       "iss": "https://auth.example.com",
-      "iat": 1700000010,
-      "scope": "ticket:*",
-      "chain_digest": "sha256:aaa...",
-      "chain_sig": "eyJhbGciOiJFUzI1NiIs..."
+      "iat": 1700000010
     },
     {
       "sub":
         "spiffe://example.com/agent/analyst",
       "iss": "https://auth.example.com",
-      "iat": 1700000030,
-      "scope": "analysis:run",
-      "chain_digest": "sha256:bbb...",
-      "chain_sig": "eyJhbGciOiJFUzI1NiIs..."
+      "iat": 1700000030
     }
   ],
 
@@ -631,7 +626,7 @@
     "https://intent-log.example.com/sessions/sess-uuid-12345",
 
   "inference_root": "sha256:xyz789...",
-  "inference_alg": "tee_h100",
+  "inference_proof_type": "tee_h100",
   "inference_registry":
     "https://proof-log.example.com/sessions/sess-uuid-12345"
 }
@@ -652,11 +647,11 @@
 <tr>
 <td align="left"><tt>inference_root</tt></td>
 <td align="left">string</td>
-<td align="left">Merkle root hash of inference chain</td>
+<td align="left">merkle root hash of inference chain</td>
 </tr>
 
 <tr>
-<td align="left"><tt>inference_alg</tt></td>
+<td align="left"><tt>inference_proof_type</tt></td>
 <td align="left">string</td>
 <td align="left">Primary proof algorithm (e.g., <tt>groth16</tt>, <tt>tee_tdx</tt>, <tt>tee_h100</tt>, <tt>hybrid</tt>)</td>
 </tr>
@@ -973,9 +968,73 @@
 <li><strong>Quote Caching</strong>: TEE quotes for the same enclave measurement MAY be cached for a configurable period, reducing quote generation overhead.</li>
 </ul>
 </section>
+
+<section anchor="multi-as-deployments"><name>Multi-AS Deployments</name>
+<t>In deployments involving multiple Authorization Servers, the inference registry is shared across all participating ASes under the same session partition. Each AS appends inference chain entries under the <tt>sid</tt> partition established at session initiation. The <tt>inference_root</tt> in each successive token is recomputed over all proof entries accumulated so far — it therefore differs at each hop as the chain grows. This is expected behavior: a relying party receiving a later token will see a larger <tt>inference_root</tt> than one receiving an earlier token in the same session. ASes do not need to share keys or coordinate directly — the session partition and append-only log semantics provide the necessary consistency, following the same pattern as the Actor Chain Registry ({{!I-D.draft-mw-spice-actor-chain}}) and Intent Registry ({{!I-D.draft-mw-spice-intent-chain}}).</t>
 </section>
 
-<section anchor="design-rationale-merkle-root-in-token"><name>Design Rationale: Merkle Root in Token</name>
+<section anchor="registry-availability"><name>Registry Availability</name>
+<t>Inference registry unavailability does not affect data-plane operation — the token's AS-signed <tt>inference_root</tt> is sufficient for request-time policy decisions. Per-entry proof verification is deferred to the audit plane.</t>
+<t>However, inference proofs are uniquely valuable because they cannot be regenerated after the fact — the exact model state, input, and execution environment may no longer be available. Deployments SHOULD:</t>
+
+<ul spacing="compact">
+<li>Replicate inference registry entries across availability zones.</li>
+<li>Use append-only log services designed for high durability (e.g., SCITT transparency logs).</li>
+<li>Define a fail-mode policy: <strong>fail-closed</strong> for regulated workloads (e.g., financial, healthcare), or <strong>fail-open</strong> with verification gap logging for lower-risk workloads.</li>
+</ul>
+<t>A federated IAM/IdM platform (e.g., Keycloak, Microsoft Entra, Okta, PingFederate) MAY host the inference registry alongside the Actor Chain Registry and Intent Registry under the same session partition — see {{!I-D.draft-mw-spice-actor-chain}} Section &quot;Registry Hosting&quot; for detailed requirements.</t>
+
+<section anchor="proof-size-and-storage"><name>Proof Size and Storage</name>
+<t>Inference proof payloads are significantly larger than actor chain entries (~0.5-1KB) or intent chain entries (<sub>0.5-1KB):</sub></t>
+<table>
+<thead>
+<tr>
+<th align="left">Proof Type</th>
+<th align="left">Typical Size</th>
+<th align="left">Storage Implication</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">TEE attestation quote</td>
+<td align="left"><sub>2-4KB</sub></td>
+<td align="left">Compatible with most IAM data stores</td>
+</tr>
+
+<tr>
+<td align="left">Groth16 ZK proof</td>
+<td align="left">~200 bytes</td>
+<td align="left">Compatible with most IAM data stores</td>
+</tr>
+
+<tr>
+<td align="left">STARK proof</td>
+<td align="left"><sub>50KB</sub></td>
+<td align="left">May exceed IAM data store blob limits</td>
+</tr>
+</tbody>
+</table><t>Most IAM/IdM platforms are not designed to store large binary blobs. Deployments that include STARK proofs SHOULD either:</t>
+
+<ul spacing="compact">
+<li>Use a dedicated object store (e.g., S3, GCS, Azure Blob Storage) for proof payloads, with the IAM platform serving as the registry index and access control layer.</li>
+<li>Or use a SCITT transparency log that natively supports variable-size entries.</li>
+</ul>
+</section>
+</section>
+
+<section anchor="performance-guidance-tee-vs-zkml"><name>Performance Guidance: TEE vs ZKML</name>
+<t>Deployments SHOULD select proof types based on their latency requirements:</t>
+
+<ul spacing="compact">
+<li><strong>Real-time applications</strong> (chat, interactive agents, API serving): Use TEE attestation quotes exclusively. TEE proof generation adds millisecond-level overhead and is compatible with production-scale LLMs (100B+ parameters).</li>
+<li><strong>Batch/offline applications</strong> (document generation, model evaluation, regulatory reporting): ZKML proofs provide mathematical certainty independent of hardware trust. Proof generation latency (minutes to hours) is acceptable when not on the critical path.</li>
+<li><strong>Hybrid deployments</strong>: Use TEE quotes for real-time inference and generate ZKML proofs asynchronously for high-value operations, appending them to the inference chain after the fact. The merkle root is recomputed at the next token exchange.</li>
+</ul>
+</section>
+</section>
+
+<section anchor="design-rationale-merkle-root-in-token"><name>Design Rationale: merkle Root in Token</name>
 <t>The inference chain follows the same merkle root architecture as the intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design Rationale for the detailed comparison). The same trade-offs apply, with additional motivation: inference proofs are large (STARK proofs ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens impractical. The merkle root enables selective verification of individual proofs using O(log n) sibling hashes, which is critical for the tiered verification strategy.</t>
 </section>
 
@@ -986,11 +1045,11 @@
 
 <ul>
 <li><strong>Claim Name</strong>: <tt>inference_root</tt></li>
-<li><strong>Claim Description</strong>: Merkle root hash of the inference chain for computational provenance verification.</li>
+<li><strong>Claim Description</strong>: merkle root hash of the inference chain for computational provenance verification.</li>
 <li><strong>Change Controller</strong>: IETF</li>
 <li><t><strong>Specification Document(s)</strong>: [this document]</t>
 </li>
-<li><t><strong>Claim Name</strong>: <tt>inference_alg</tt></t>
+<li><t><strong>Claim Name</strong>: <tt>inference_proof_type</tt></t>
 </li>
 <li><t><strong>Claim Description</strong>: Primary proof algorithm used in the inference chain.</t>
 </li>
@@ -1014,7 +1073,7 @@
 
 <ul>
 <li><strong>Claim Name</strong>: <tt>inference_root</tt></li>
-<li><strong>Claim Description</strong>: Merkle root hash of the inference chain.</li>
+<li><strong>Claim Description</strong>: merkle root hash of the inference chain.</li>
 <li><strong>CBOR Key</strong>: TBD (e.g., 60)</li>
 <li><strong>Claim Type</strong>: tstr</li>
 <li><strong>Change Controller</strong>: IETF</li>
@@ -1032,7 +1091,7 @@
 </li>
 <li><t><strong>Specification Document(s)</strong>: [this document]</t>
 </li>
-<li><t><strong>Claim Name</strong>: <tt>inference_alg</tt></t>
+<li><t><strong>Claim Name</strong>: <tt>inference_proof_type</tt></t>
 </li>
 <li><t><strong>Claim Description</strong>: Primary proof algorithm used in the inference chain.</t>
 </li>
@@ -1096,7 +1155,7 @@
     "https://intent-log.example.com/sessions/sess-uuid-12345",
 
   "inference_root": "sha256:xyz789...",
-  "inference_alg": "tee_h100",
+  "inference_proof_type": "tee_h100",
   "inference_registry":
     "https://proof-log.example.com/sessions/sess-uuid-12345"
 }
