@@ -19,7 +19,7 @@ txt: $(DRAFT).txt
 html: $(DRAFT).html
 xml: $(DRAFT).xml
 
-$(DRAFT).xml: $(DRAFT).md
+$(DRAFT).xml: draft-mw-spice-inference-chain.md
 	$(MMARK) $< > $@
 
 $(DRAFT).txt: $(DRAFT).xml

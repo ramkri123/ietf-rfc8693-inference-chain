@@ -10,7 +10,7 @@
 <meta content="Diego R. Lopez" name="author">
 <meta content="Srinivasa Addepalli" name="author">
 <meta content='
-       This document defines the  inference_root  claim as a companion to the  actor_chain  claim ([[!I-D.draft-mw-spice-actor-chain]]) and the  intent_root  claim ([[!I-D.draft-mw-spice-intent-chain]]). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output. 
+       This document defines the  inference_root  claim as a companion to the  actor_chain  claim ({{!I-D.draft-mw-spice-actor-chain}}) and the  intent_root  claim ({{!I-D.draft-mw-spice-intent-chain}}). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output. 
        The inference chain leverages two complementary mechanisms: Zero-Knowledge Machine Learning (ZKML) proofs for mathematical certainty, and Trusted Execution Environment (TEE) attestation quotes for production-scale AI workloads. The full inference chain is stored as ordered logs, with only the merkle root included in the OAuth token for efficiency. 
        Together, the three chains — actor, intent, and inference — form a complete "Truth Stack" for autonomous AI agent governance. 
     ' name="description">
@@ -33,9 +33,11 @@
     lxml 6.0.2
     platformdirs 4.5.1
     pycountry 26.2.16
+    pypdf 6.7.5
     PyYAML 5.4.1
     requests 2.32.5
     wcwidth 0.6.0
+    weasyprint 68.1
 -->
 <link href="draft-mw-spice-inference-chain-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1230,7 +1232,7 @@ li > p:last-of-type:only-child {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Krishnan, et al.</td>
-<td class="center">Expires 8 September 2026</td>
+<td class="center">Expires 11 September 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1243,12 +1245,12 @@ li > p:last-of-type:only-child {
 <dd class="internet-draft">draft-mw-spice-inference-chain-00</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-03-07" class="published">7 March 2026</time>
+<time datetime="2026-03-10" class="published">10 March 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-09-08">8 September 2026</time></dd>
+<dd class="expires"><time datetime="2026-09-11">11 September 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1273,7 +1275,7 @@ li > p:last-of-type:only-child {
 <h1 id="title">Cryptographically Verifiable Inference Chain for AI Agent Computational Provenance</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This document defines the <code>inference_root</code> claim as a companion to the <code>actor_chain</code> claim ([[!I-D.draft-mw-spice-actor-chain]]) and the <code>intent_root</code> claim ([[!I-D.draft-mw-spice-intent-chain]]). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This document defines the <code>inference_root</code> claim as a companion to the <code>actor_chain</code> claim ({{!I-D.draft-mw-spice-actor-chain}}) and the <code>intent_root</code> claim ({{!I-D.draft-mw-spice-intent-chain}}). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <p id="section-abstract-2">The inference chain leverages two complementary mechanisms: Zero-Knowledge Machine Learning (ZKML) proofs for mathematical certainty, and Trusted Execution Environment (TEE) attestation quotes for production-scale AI workloads. The full inference chain is stored as ordered logs, with only the merkle root included in the OAuth token for efficiency.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 <p id="section-abstract-3">Together, the three chains — actor, intent, and inference — form a complete "Truth Stack" for autonomous AI agent governance.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
 </section>
@@ -1296,7 +1298,7 @@ li > p:last-of-type:only-child {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 8 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 11 September 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1377,10 +1379,10 @@ li > p:last-of-type:only-child {
                 <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-inference-registry" class="internal xref">Inference Registry</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-merkle-tree-construction" class="internal xref">Merkle Tree Construction</a></p>
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-merkle-tree-construction" class="internal xref">merkle Tree Construction</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
-                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-merkle-root-in-token" class="internal xref">Merkle Root in Token</a></p>
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-merkle-root-in-token" class="internal xref">merkle Root in Token</a></p>
 </li>
             </ul>
 </li>
@@ -1427,13 +1429,10 @@ li > p:last-of-type:only-child {
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1.2.3">
                     <p id="section-toc.1-1.8.2.1.2.3.1"><a href="#section-8.1.3" class="auto internal xref">8.1.3</a>.  <a href="#name-block-specific-model-versio" class="internal xref">Block Specific Model Versions</a></p>
 </li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1.2.4">
-                    <p id="section-toc.1-1.8.2.1.2.4.1"><a href="#section-8.1.4" class="auto internal xref">8.1.4</a>.  <a href="#name-require-specific-hardware-p" class="internal xref">Require Specific Hardware Platform</a></p>
-</li>
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
-                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-integration-with-opa" class="internal xref">Integration with OPA</a></p>
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-integration-with-policy-eng" class="internal xref">Integration with Policy Engines</a></p>
 </li>
             </ul>
 </li>
@@ -1497,10 +1496,24 @@ li > p:last-of-type:only-child {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
                 <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="auto internal xref">11.3</a>.  <a href="#name-scalability-considerations" class="internal xref">Scalability Considerations</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
+                <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="auto internal xref">11.4</a>.  <a href="#name-multi-as-deployments" class="internal xref">Multi-AS Deployments</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.5">
+                <p id="section-toc.1-1.11.2.5.1"><a href="#section-11.5" class="auto internal xref">11.5</a>.  <a href="#name-registry-availability" class="internal xref">Registry Availability</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.5.2.1">
+                    <p id="section-toc.1-1.11.2.5.2.1.1"><a href="#section-11.5.1" class="auto internal xref">11.5.1</a>.  <a href="#name-proof-size-and-storage" class="internal xref">Proof Size and Storage</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.6">
+                <p id="section-toc.1-1.11.2.6.1"><a href="#section-11.6" class="auto internal xref">11.6</a>.  <a href="#name-performance-guidance-tee-vs" class="internal xref">Performance Guidance: TEE vs ZKML</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-design-rationale-merkle-roo" class="internal xref">Design Rationale: Merkle Root in Token</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-design-rationale-merkle-roo" class="internal xref">Design Rationale: merkle Root in Token</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
             <p id="section-toc.1-1.13.1"><a href="#section-13" class="auto internal xref">13</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
@@ -1533,7 +1546,7 @@ li > p:last-of-type:only-child {
         <h3 id="name-the-problem-computational-s">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-the-problem-computational-s" class="section-name selfRef">The Problem: Computational Spoofing</a>
         </h3>
-<p id="section-1.1-1">The Actor Chain ([[!I-D.draft-mw-spice-actor-chain]]) proves WHO delegated to whom. The Intent Chain ([[!I-D.draft-mw-spice-intent-chain]]) proves WHAT was produced and how it was transformed. Neither addresses a critical remaining gap: was the <strong>claimed computational process</strong> actually used to produce the output?<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-1">The Actor Chain ({{!I-D.draft-mw-spice-actor-chain}}) proves WHO delegated to whom. The Intent Chain ({{!I-D.draft-mw-spice-intent-chain}}) proves WHAT was produced and how it was transformed. Neither addresses a critical remaining gap: was the <strong>claimed computational process</strong> actually used to produce the output?<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <p id="section-1.1-2">In AI agent workflows, an agent may claim to use a high-capability, safety-aligned model (e.g., a frontier model with RLHF alignment) while actually running a cheaper, unaligned model. This "Model Masquerading" attack is undetectable by content hashes alone — the output hash in the intent chain proves the output exists, but not that the claimed model produced it.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 <p id="section-1.1-3"><strong>Concrete threats:</strong><a href="#section-1.1-3" class="pilcrow">¶</a></p>
 <ul class="compact">
@@ -1571,14 +1584,14 @@ li > p:last-of-type:only-child {
           <tbody>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <strong>Actor Chain</strong> ([[!I-D.draft-mw-spice-actor-chain]])</td>
+                <strong>Actor Chain</strong> ({{!I-D.draft-mw-spice-actor-chain}})</td>
               <td class="text-left" rowspan="1" colspan="1">Identity</td>
               <td class="text-left" rowspan="1" colspan="1">WHO delegated to whom?</td>
               <td class="text-left" rowspan="1" colspan="1">Spoofing, Repudiation, Elevation of Privilege</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <strong>Intent Chain</strong> ([[!I-D.draft-mw-spice-intent-chain]])</td>
+                <strong>Intent Chain</strong> ({{!I-D.draft-mw-spice-intent-chain}})</td>
               <td class="text-left" rowspan="1" colspan="1">Content</td>
               <td class="text-left" rowspan="1" colspan="1">WHAT was produced and transformed?</td>
               <td class="text-left" rowspan="1" colspan="1">Repudiation, Tampering</td>
@@ -1592,16 +1605,57 @@ li > p:last-of-type:only-child {
             </tr>
           </tbody>
         </table>
-<p id="section-1.2-3">The three chains are independent and composable:<a href="#section-1.2-3" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Chain</th>
+              <th class="text-left" rowspan="1" colspan="1">Plane</th>
+              <th class="text-left" rowspan="1" colspan="1">Token Content</th>
+              <th class="text-left" rowspan="1" colspan="1">Full Chain</th>
+              <th class="text-left" rowspan="1" colspan="1">Primary Consumer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <strong>Actor</strong>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Data Plane</td>
+              <td class="text-left" rowspan="1" colspan="1">Full chain inline</td>
+              <td class="text-left" rowspan="1" colspan="1">In token</td>
+              <td class="text-left" rowspan="1" colspan="1">Every Relying Party (real-time authorization)</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <strong>Intent</strong>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Audit Plane</td>
+              <td class="text-left" rowspan="1" colspan="1">merkle root only</td>
+              <td class="text-left" rowspan="1" colspan="1">External registry</td>
+              <td class="text-left" rowspan="1" colspan="1">Audit systems, forensic investigators</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">
+                <strong>Inference</strong>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Audit Plane</td>
+              <td class="text-left" rowspan="1" colspan="1">merkle root only</td>
+              <td class="text-left" rowspan="1" colspan="1">External registry</td>
+              <td class="text-left" rowspan="1" colspan="1">Auditors, compliance systems</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-1.2-4">The three chains are independent and composable:<a href="#section-1.2-4" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="section-1.2-4.1">
-            <strong>Actor + Intent</strong>: Identity and content governance without computational proof (sufficient for rule-based systems).<a href="#section-1.2-4.1" class="pilcrow">¶</a>
+<li class="compact" id="section-1.2-5.1">
+            <strong>Actor + Intent</strong>: Identity and content governance without computational proof (sufficient for rule-based systems).<a href="#section-1.2-5.1" class="pilcrow">¶</a>
 </li>
-          <li class="compact" id="section-1.2-4.2">
-            <strong>Actor + Inference</strong>: Identity and computational governance without content transformation tracking (sufficient for single-agent systems).<a href="#section-1.2-4.2" class="pilcrow">¶</a>
+          <li class="compact" id="section-1.2-5.2">
+            <strong>Actor + Inference</strong>: Identity and computational governance without content transformation tracking (sufficient for single-agent systems).<a href="#section-1.2-5.2" class="pilcrow">¶</a>
 </li>
-          <li class="compact" id="section-1.2-4.3">
-            <strong>All Three</strong>: Full governance for multi-agent pipelines with content transformation and computational integrity.<a href="#section-1.2-4.3" class="pilcrow">¶</a>
+          <li class="compact" id="section-1.2-5.3">
+            <strong>All Three</strong>: Full governance for multi-agent pipelines with content transformation and computational integrity.<a href="#section-1.2-5.3" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
@@ -1637,7 +1691,7 @@ li > p:last-of-type:only-child {
       <h2 id="name-terminology">
 <a href="#section-2" class="section-number selfRef">2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
       </h2>
-<p id="section-2-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 [[RFC2119]] [[RFC8174]] when, and only when, they appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlCompact dlParallel" id="section-2-2">
         <dt id="section-2-2.1">Inference Chain:</dt>
         <dd style="margin-left: 1.5em" id="section-2-2.2">An ordered sequence of Inference Chain Entries providing cryptographic proof of the computational processes that produced AI agent outputs within a session.<a href="#section-2-2.2" class="pilcrow">¶</a>
@@ -1660,7 +1714,7 @@ li > p:last-of-type:only-child {
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-2.11">TEE Quote:</dt>
-        <dd style="margin-left: 1.5em" id="section-2-2.12">A hardware-signed attestation from a Trusted Execution Environment (e.g., Intel TDX, AMD SEV-SNP, NVIDIA H100 Confidential Computing) proving that specific code ran within a verified enclave with specific measurements. TEE attestation follows the RATS architecture [[RFC9334]].<a href="#section-2-2.12" class="pilcrow">¶</a>
+        <dd style="margin-left: 1.5em" id="section-2-2.12">A hardware-signed attestation from a Trusted Execution Environment (e.g., Intel TDX, AMD SEV-SNP, NVIDIA H100 Confidential Computing) proving that specific code ran within a verified enclave with specific measurements. TEE attestation follows the RATS architecture {{!RFC9334}}.<a href="#section-2-2.12" class="pilcrow">¶</a>
 </dd>
         <dd class="break"></dd>
 <dt id="section-2-2.13">Model Fingerprint:</dt>
@@ -1681,8 +1735,8 @@ li > p:last-of-type:only-child {
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-overview" class="section-name selfRef">Overview</a>
         </h3>
 <p id="section-3.1-1">The inference chain supports two primary proof types, each with different trust assumptions and performance characteristics:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-2">
-          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<table class="center" id="table-3">
+          <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Property</th>
@@ -1757,8 +1811,8 @@ li > p:last-of-type:only-child {
 </li>
         </ul>
 <p id="section-3.2-5"><strong>Applicable Proof Systems</strong>:<a href="#section-3.2-5" class="pilcrow">¶</a></p>
-<table class="center" id="table-3">
-          <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<table class="center" id="table-4">
+          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">System</th>
@@ -1848,8 +1902,8 @@ li > p:last-of-type:only-child {
 </li>
         </ul>
 <p id="section-3.3-5"><strong>Supported Platforms</strong>:<a href="#section-3.3-5" class="pilcrow">¶</a></p>
-<table class="center" id="table-4">
-          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
+<table class="center" id="table-5">
+          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Platform</th>
@@ -1961,8 +2015,8 @@ li > p:last-of-type:only-child {
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-common-fields" class="section-name selfRef">Common Fields</a>
         </h3>
 <p id="section-4.1-1">All inference chain entries share common fields:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-5">
-          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
+<table class="center" id="table-6">
+          <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Field</th>
@@ -2048,7 +2102,7 @@ li > p:last-of-type:only-child {
             </tr>
           </tbody>
         </table>
-<p id="section-4.1-3">The <code>sub</code> field identifies the agent that performed inference. It corresponds to the <code>sub</code> field of the matching actor chain entry ([[!I-D.draft-mw-spice-actor-chain]]).<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">The <code>sub</code> field identifies the agent that performed inference. It corresponds to the <code>sub</code> field of the matching actor chain entry ({{!I-D.draft-mw-spice-actor-chain}}).<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="binding-to-intent-chain">
@@ -2061,19 +2115,19 @@ li > p:last-of-type:only-child {
 <pre>Intent Chain:                 Inference Chain:
 ┌──────────────────┐         ┌──────────────────┐
 │ Entry 0          │         │                  │
-│ type: agent_out  │◄────────│ Entry 0          │
+│ type: non_det    │◄────────│ Entry 0          │
 │ output: sha:abc  │         │ type: tee_quote  │
 │                  │         │ output: sha:abc  │
 │                  │         │ intent_ref: 0    │
 └──────────────────┘         └──────────────────┘
 ┌──────────────────┐
 │ Entry 1          │         (no proof needed
-│ type: det_filter │          for deterministic
+│ type: determ.    │          for deterministic
 │                  │          filters)
 └──────────────────┘
 ┌──────────────────┐         ┌──────────────────┐
 │ Entry 3          │         │                  │
-│ type: agent_out  │◄────────│ Entry 1          │
+│ type: non_det    │◄────────│ Entry 1          │
 │ output: sha:def  │         │ type: zkml       │
 │                  │         │ output: sha:def  │
 │                  │         │ intent_ref: 3    │
@@ -2109,7 +2163,7 @@ li > p:last-of-type:only-child {
 <blockquote id="section-5.1-4">
           <p id="section-5.1-4.1">Inference registry entries MUST NOT contain OAuth tokens, bearer credentials, or signing keys. Entries contain only inference proofs, content hashes, metadata, and agent identities. The token references the registry via the <code>inference_registry</code> claim; the registry MUST NOT store or reference the token itself.<a href="#section-5.1-4.1" class="pilcrow">¶</a></p>
 </blockquote>
-<p id="section-5.1-5"><strong>Implementation Options</strong>: Apache Kafka, AWS Kinesis, Apache Pulsar, SCITT transparency log.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
+<p id="section-5.1-5">Implementations SHOULD use an append-only log with tamper-evident guarantees and partitioned, ordered retrieval by session ID.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
 <p id="section-5.1-6"><strong>Log Structure</strong>:<a href="#section-5.1-6" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-5.1-7">
 <pre>{
@@ -2135,28 +2189,28 @@ li > p:last-of-type:only-child {
 <div id="merkle-tree-construction">
 <section id="section-5.2">
         <h3 id="name-merkle-tree-construction">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-merkle-tree-construction" class="section-name selfRef">Merkle Tree Construction</a>
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-merkle-tree-construction" class="section-name selfRef">merkle Tree Construction</a>
         </h3>
-<p id="section-5.2-1">The inference chain merkle tree follows the same construction algorithm as the intent chain (defined in [[!I-D.draft-mw-spice-intent-chain]] Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the <code>inference_root</code> claim.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-1">The inference chain merkle tree follows the same construction algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-intent-chain}} Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the <code>inference_root</code> claim.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="merkle-root-in-token">
 <section id="section-5.3">
         <h3 id="name-merkle-root-in-token">
-<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-merkle-root-in-token" class="section-name selfRef">Merkle Root in Token</a>
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-merkle-root-in-token" class="section-name selfRef">merkle Root in Token</a>
         </h3>
 <p id="section-5.3-1">Only the merkle root is included in the OAuth token:<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-5.3-2">
 <pre>{
   "inference_root": "sha256:xyz789...",
-  "inference_alg": "groth16",
+  "inference_proof_type": "groth16",
   "inference_registry":
     "https://proof-log.example.com"
 }
 </pre><a href="#section-5.3-2" class="pilcrow">¶</a>
 </div>
-<table class="center" id="table-6">
-          <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
+<table class="center" id="table-7">
+          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Field</th>
@@ -2172,11 +2226,11 @@ li > p:last-of-type:only-child {
 </td>
               <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">REQUIRED</td>
-              <td class="text-left" rowspan="1" colspan="1">Merkle root hash of inference chain</td>
+              <td class="text-left" rowspan="1" colspan="1">merkle root hash of inference chain</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>inference_alg</code>
+                <code>inference_proof_type</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">OPTIONAL</td>
@@ -2212,11 +2266,13 @@ li > p:last-of-type:only-child {
   "iss": "https://auth.example.com",
   "sub": "user-alice",
   "aud": "https://api.example.com",
-  "jti": "sess-uuid-12345",
+  "jti": "tok-eee-12345",
+  "sid": "sess-uuid-12345",
   "iat": 1700000000,
   "exp": 1700003600,
 
   "session": {
+    "session_id": "sess-uuid-12345",
     "type": "human_initiated",
     "initiator": "user-alice",
     "approval_ref": "approval-uuid-789",
@@ -2228,19 +2284,13 @@ li > p:last-of-type:only-child {
       "sub":
         "spiffe://example.com/agent/orchestrator",
       "iss": "https://auth.example.com",
-      "iat": 1700000010,
-      "scope": "ticket:*",
-      "chain_digest": "sha256:aaa...",
-      "chain_sig": "eyJhbGciOiJFUzI1NiIs..."
+      "iat": 1700000010
     },
     {
       "sub":
         "spiffe://example.com/agent/analyst",
       "iss": "https://auth.example.com",
-      "iat": 1700000030,
-      "scope": "analysis:run",
-      "chain_digest": "sha256:bbb...",
-      "chain_sig": "eyJhbGciOiJFUzI1NiIs..."
+      "iat": 1700000030
     }
   ],
 
@@ -2249,7 +2299,7 @@ li > p:last-of-type:only-child {
     "https://intent-log.example.com/sessions/sess-uuid-12345",
 
   "inference_root": "sha256:xyz789...",
-  "inference_alg": "tee_h100",
+  "inference_proof_type": "tee_h100",
   "inference_registry":
     "https://proof-log.example.com/sessions/sess-uuid-12345"
 }
@@ -2262,8 +2312,8 @@ li > p:last-of-type:only-child {
         <h3 id="name-claim-definitions">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-claim-definitions" class="section-name selfRef">Claim Definitions</a>
         </h3>
-<table class="center" id="table-7">
-          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
+<table class="center" id="table-8">
+          <caption><a href="#table-8" class="selfRef">Table 8</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Claim</th>
@@ -2277,11 +2327,11 @@ li > p:last-of-type:only-child {
                 <code>inference_root</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">string</td>
-              <td class="text-left" rowspan="1" colspan="1">Merkle root hash of inference chain</td>
+              <td class="text-left" rowspan="1" colspan="1">merkle root hash of inference chain</td>
             </tr>
             <tr>
               <td class="text-left" rowspan="1" colspan="1">
-                <code>inference_alg</code>
+                <code>inference_proof_type</code>
 </td>
               <td class="text-left" rowspan="1" colspan="1">string</td>
               <td class="text-left" rowspan="1" colspan="1">Primary proof algorithm (e.g., <code>groth16</code>, <code>tee_tdx</code>, <code>tee_h100</code>, <code>hybrid</code>)</td>
@@ -2309,7 +2359,7 @@ li > p:last-of-type:only-child {
         <h3 id="name-three-point-verification">
 <a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-three-point-verification" class="section-name selfRef">Three-Point Verification</a>
         </h3>
-<p id="section-7.1-1">A Resource Server receiving a token with all three chains performs a "Three-Point Check":<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1-1">A Relying Party receiving a token with all three chains performs a "Three-Point Check":<a href="#section-7.1-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="compact type-1" id="section-7.1-2">
 <li id="section-7.1-2.1">
             <strong>Identity</strong> (Actor Chain): Is the delegation chain valid? Are all actors authorized?<a href="#section-7.1-2.1" class="pilcrow">¶</a>
@@ -2372,9 +2422,9 @@ li > p:last-of-type:only-child {
         <h3 id="name-tiered-verification">
 <a href="#section-7.4" class="section-number selfRef">7.4. </a><a href="#name-tiered-verification" class="section-name selfRef">Tiered Verification</a>
         </h3>
-<p id="section-7.4-1">Inference verification extends the tiered strategy from [[!I-D.draft-mw-spice-intent-chain]]:<a href="#section-7.4-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-8">
-          <caption><a href="#table-8" class="selfRef">Table 8</a></caption>
+<p id="section-7.4-1">Inference verification extends the tiered strategy from {{!I-D.draft-mw-spice-intent-chain}}:<a href="#section-7.4-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-9">
+          <caption><a href="#table-9" class="selfRef">Table 9</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Risk Level</th>
@@ -2442,7 +2492,7 @@ li > p:last-of-type:only-child {
         input.inference_root)
 
     agent_outputs := [i |
-        intent_chain[i].type == "agent_output"]
+        intent_chain[i].type == "non_deterministic"]
 
     every i in agent_outputs {
         some j
@@ -2494,73 +2544,24 @@ li > p:last-of-type:only-child {
 </div>
 </section>
 </div>
-<div id="require-specific-hardware-platform">
-<section id="section-8.1.4">
-          <h4 id="name-require-specific-hardware-p">
-<a href="#section-8.1.4" class="section-number selfRef">8.1.4. </a><a href="#name-require-specific-hardware-p" class="section-name selfRef">Require Specific Hardware Platform</a>
-          </h4>
-<div class="alignLeft art-text artwork" id="section-8.1.4-1">
-<pre>require_nvidia_cc {
-    inference_chain := get_inference_chain(
-        input.inference_root)
-
-    every entry in inference_chain {
-        entry.type == "tee_attestation"
-        entry.platform == "nvidia_h100_cc"
-    }
-}
-</pre><a href="#section-8.1.4-1" class="pilcrow">¶</a>
-</div>
 </section>
 </div>
-</section>
-</div>
-<div id="integration-with-opa">
+<div id="integration-with-policy-engines">
 <section id="section-8.2">
-        <h3 id="name-integration-with-opa">
-<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-integration-with-opa" class="section-name selfRef">Integration with OPA</a>
+        <h3 id="name-integration-with-policy-eng">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-integration-with-policy-eng" class="section-name selfRef">Integration with Policy Engines</a>
         </h3>
-<div class="alignLeft art-text artwork" id="section-8.2-1">
-<pre>package agentic.inference
-
-import future.keywords.every
-import future.keywords.in
-
-default allow = false
-
-allow {
-    valid_identity
-    valid_content
-    valid_computation
-    policy_met
-}
-
-# Three-point check
-valid_identity {
-    verify_actor_chain(input.token.actor_chain)
-}
-
-valid_content {
-    input.token.intent_root != ""
-    verify_intent_root(
-        input.token.intent_root,
-        input.token.intent_registry)
-}
-
-valid_computation {
-    input.token.inference_root != ""
-    input.token.inference_registry != ""
-    verify_inference_root(
-        input.token.inference_root,
-        input.token.inference_registry)
-}
-
-policy_met {
-    require_inference_proofs
-    block_deprecated_models
-}
-</pre><a href="#section-8.2-1" class="pilcrow">¶</a>
-</div>
+<p id="section-8.2-1">The inference chain claims are designed for consumption by policy engines such as Open Policy Agent (OPA). A policy engine SHOULD:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="section-8.2-2">
+<li id="section-8.2-2.1">Verify actor chain integrity (per {{!I-D.draft-mw-spice-actor-chain}}).<a href="#section-8.2-2.1" class="pilcrow">¶</a>
+</li>
+          <li id="section-8.2-2.2">Verify intent chain integrity (per {{!I-D.draft-mw-spice-intent-chain}}).<a href="#section-8.2-2.2" class="pilcrow">¶</a>
+</li>
+          <li id="section-8.2-2.3">Verify <code>inference_root</code> and <code>inference_registry</code> are present and non-empty.<a href="#section-8.2-2.3" class="pilcrow">¶</a>
+</li>
+          <li id="section-8.2-2.4">Evaluate deployment-specific requirements such as proof type (ZKML vs TEE), model version policies, and hardware platform requirements.<a href="#section-8.2-2.4" class="pilcrow">¶</a>
+</li>
+        </ol>
 </section>
 </div>
 </section>
@@ -2575,8 +2576,8 @@ policy_met {
         <h3 id="name-stride-analysis-for-inferen">
 <a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-stride-analysis-for-inferen" class="section-name selfRef">STRIDE Analysis for Inference Chain</a>
         </h3>
-<table class="center" id="table-9">
-          <caption><a href="#table-9" class="selfRef">Table 9</a></caption>
+<table class="center" id="table-10">
+          <caption><a href="#table-10" class="selfRef">Table 10</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Threat</th>
@@ -2718,7 +2719,7 @@ policy_met {
         <h3 id="name-relationship-to-proof-of-re">
 <a href="#section-9.7" class="section-number selfRef">9.7. </a><a href="#name-relationship-to-proof-of-re" class="section-name selfRef">Relationship to Proof of Residency</a>
         </h3>
-<p id="section-9.7-1">The inference chain's TEE attestation entries are complementary to, but distinct from, the Proof of Residency (PoR) in actor chain entries ([[!I-D.draft-mw-spice-transitive-attestation]]):<a href="#section-9.7-1" class="pilcrow">¶</a></p>
+<p id="section-9.7-1">The inference chain's TEE attestation entries are complementary to, but distinct from, the Proof of Residency (PoR) in actor chain entries ({{!I-D.draft-mw-spice-transitive-attestation}}):<a href="#section-9.7-1" class="pilcrow">¶</a></p>
 <ul class="compact">
 <li class="compact" id="section-9.7-2.1">
             <strong>PoR</strong> (in actor chain): Proves the agent's IDENTITY is bound to a TEE. Answers "Is this agent running in a secure environment?"<a href="#section-9.7-2.1" class="pilcrow">¶</a>
@@ -2759,7 +2760,7 @@ policy_met {
         <h3 id="name-selective-disclosure">
 <a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-selective-disclosure" class="section-name selfRef">Selective Disclosure</a>
         </h3>
-<p id="section-10.3-1">Inference chain entries MAY use Selective Disclosure (SD-JWT) [[!I-D.ietf-oauth-selective-disclosure-jwt]] to hide sensitive fields such as <code>model_id</code> or <code>platform</code> from certain verifiers while maintaining proof integrity.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<p id="section-10.3-1">Inference chain entries MAY use Selective Disclosure (SD-JWT) {{!I-D.ietf-oauth-selective-disclosure-jwt}} to hide sensitive fields such as <code>model_id</code> or <code>platform</code> from certain verifiers while maintaining proof integrity.<a href="#section-10.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2774,19 +2775,8 @@ policy_met {
         <h3 id="name-current-zkml-landscape">
 <a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-current-zkml-landscape" class="section-name selfRef">Current ZKML Landscape</a>
         </h3>
-<p id="section-11.1-1">As of this writing, ZKML is practical for models up to approximately 100 million parameters. Active research and engineering efforts are scaling this boundary:<a href="#section-11.1-1" class="pilcrow">¶</a></p>
-<ul class="compact">
-<li class="compact" id="section-11.1-2.1">
-            <strong>EZKL</strong>: Open-source ZKML framework supporting ONNX models with Halo2 proofs.<a href="#section-11.1-2.1" class="pilcrow">¶</a>
-</li>
-          <li class="compact" id="section-11.1-2.2">
-            <strong>zkLLM</strong>: Research framework for proving LLM inference with optimized circuits.<a href="#section-11.1-2.2" class="pilcrow">¶</a>
-</li>
-          <li class="compact" id="section-11.1-2.3">
-            <strong>Modulus Labs</strong>: Commercial ZKML infrastructure.<a href="#section-11.1-2.3" class="pilcrow">¶</a>
-</li>
-        </ul>
-<p id="section-11.1-3">Deployments SHOULD plan for ZKML scalability improvements and MAY use TEE attestation as a near-term bridge.<a href="#section-11.1-3" class="pilcrow">¶</a></p>
+<p id="section-11.1-1">As of this writing, ZKML is practical for models up to approximately 100 million parameters. Active research is scaling this boundary through optimized circuit designs and recursive proof composition.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+<p id="section-11.1-2">Deployments SHOULD plan for ZKML scalability improvements and MAY use TEE attestation as a near-term bridge.<a href="#section-11.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="tee-integration">
@@ -2825,17 +2815,105 @@ policy_met {
         </ul>
 </section>
 </div>
+<div id="multi-as-deployments">
+<section id="section-11.4">
+        <h3 id="name-multi-as-deployments">
+<a href="#section-11.4" class="section-number selfRef">11.4. </a><a href="#name-multi-as-deployments" class="section-name selfRef">Multi-AS Deployments</a>
+        </h3>
+<p id="section-11.4-1">In deployments involving multiple Authorization Servers, the inference registry is shared across all participating ASes under the same session partition. Each AS appends inference chain entries under the <code>sid</code> partition established at session initiation. The <code>inference_root</code> in each successive token is recomputed over all proof entries accumulated so far — it therefore differs at each hop as the chain grows. This is expected behavior: a relying party receiving a later token will see a larger <code>inference_root</code> than one receiving an earlier token in the same session. ASes do not need to share keys or coordinate directly — the session partition and append-only log semantics provide the necessary consistency, following the same pattern as the Actor Chain Registry ({{!I-D.draft-mw-spice-actor-chain}}) and Intent Registry ({{!I-D.draft-mw-spice-intent-chain}}).<a href="#section-11.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="registry-availability">
+<section id="section-11.5">
+        <h3 id="name-registry-availability">
+<a href="#section-11.5" class="section-number selfRef">11.5. </a><a href="#name-registry-availability" class="section-name selfRef">Registry Availability</a>
+        </h3>
+<p id="section-11.5-1">Inference registry unavailability does not affect data-plane operation — the token's AS-signed <code>inference_root</code> is sufficient for request-time policy decisions. Per-entry proof verification is deferred to the audit plane.<a href="#section-11.5-1" class="pilcrow">¶</a></p>
+<p id="section-11.5-2">However, inference proofs are uniquely valuable because they cannot be regenerated after the fact — the exact model state, input, and execution environment may no longer be available. Deployments SHOULD:<a href="#section-11.5-2" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-11.5-3.1">Replicate inference registry entries across availability zones.<a href="#section-11.5-3.1" class="pilcrow">¶</a>
+</li>
+          <li class="compact" id="section-11.5-3.2">Use append-only log services designed for high durability (e.g., SCITT transparency logs).<a href="#section-11.5-3.2" class="pilcrow">¶</a>
+</li>
+          <li class="compact" id="section-11.5-3.3">Define a fail-mode policy: <strong>fail-closed</strong> for regulated workloads (e.g., financial, healthcare), or <strong>fail-open</strong> with verification gap logging for lower-risk workloads.<a href="#section-11.5-3.3" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-11.5-4">A federated IAM/IdM platform (e.g., Keycloak, Microsoft Entra, Okta, PingFederate) MAY host the inference registry alongside the Actor Chain Registry and Intent Registry under the same session partition — see {{!I-D.draft-mw-spice-actor-chain}} Section "Registry Hosting" for detailed requirements.<a href="#section-11.5-4" class="pilcrow">¶</a></p>
+<div id="proof-size-and-storage">
+<section id="section-11.5.1">
+          <h4 id="name-proof-size-and-storage">
+<a href="#section-11.5.1" class="section-number selfRef">11.5.1. </a><a href="#name-proof-size-and-storage" class="section-name selfRef">Proof Size and Storage</a>
+          </h4>
+<p id="section-11.5.1-1">Inference proof payloads are significantly larger than actor chain entries (~0.5-1KB) or intent chain entries (<sub>0.5-1KB):</sub><a href="#section-11.5.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-11">
+            <caption><a href="#table-11" class="selfRef">Table 11</a></caption>
+<thead>
+              <tr>
+                <th class="text-left" rowspan="1" colspan="1">Proof Type</th>
+                <th class="text-left" rowspan="1" colspan="1">Typical Size</th>
+                <th class="text-left" rowspan="1" colspan="1">Storage Implication</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">TEE attestation quote</td>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <sub>2-4KB</sub>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">Compatible with most IAM data stores</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">Groth16 ZK proof</td>
+                <td class="text-left" rowspan="1" colspan="1">~200 bytes</td>
+                <td class="text-left" rowspan="1" colspan="1">Compatible with most IAM data stores</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">STARK proof</td>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <sub>50KB</sub>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">May exceed IAM data store blob limits</td>
+              </tr>
+            </tbody>
+          </table>
+<p id="section-11.5.1-3">Most IAM/IdM platforms are not designed to store large binary blobs. Deployments that include STARK proofs SHOULD either:<a href="#section-11.5.1-3" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-11.5.1-4.1">Use a dedicated object store (e.g., S3, GCS, Azure Blob Storage) for proof payloads, with the IAM platform serving as the registry index and access control layer.<a href="#section-11.5.1-4.1" class="pilcrow">¶</a>
+</li>
+            <li class="compact" id="section-11.5.1-4.2">Or use a SCITT transparency log that natively supports variable-size entries.<a href="#section-11.5.1-4.2" class="pilcrow">¶</a>
+</li>
+          </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="performance-guidance-tee-vs-zkml">
+<section id="section-11.6">
+        <h3 id="name-performance-guidance-tee-vs">
+<a href="#section-11.6" class="section-number selfRef">11.6. </a><a href="#name-performance-guidance-tee-vs" class="section-name selfRef">Performance Guidance: TEE vs ZKML</a>
+        </h3>
+<p id="section-11.6-1">Deployments SHOULD select proof types based on their latency requirements:<a href="#section-11.6-1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-11.6-2.1">
+            <strong>Real-time applications</strong> (chat, interactive agents, API serving): Use TEE attestation quotes exclusively. TEE proof generation adds millisecond-level overhead and is compatible with production-scale LLMs (100B+ parameters).<a href="#section-11.6-2.1" class="pilcrow">¶</a>
+</li>
+          <li class="compact" id="section-11.6-2.2">
+            <strong>Batch/offline applications</strong> (document generation, model evaluation, regulatory reporting): ZKML proofs provide mathematical certainty independent of hardware trust. Proof generation latency (minutes to hours) is acceptable when not on the critical path.<a href="#section-11.6-2.2" class="pilcrow">¶</a>
+</li>
+          <li class="compact" id="section-11.6-2.3">
+            <strong>Hybrid deployments</strong>: Use TEE quotes for real-time inference and generate ZKML proofs asynchronously for high-value operations, appending them to the inference chain after the fact. The merkle root is recomputed at the next token exchange.<a href="#section-11.6-2.3" class="pilcrow">¶</a>
+</li>
+        </ul>
+</section>
+</div>
 </section>
 </div>
 <div id="design-rationale-merkle-root-in-token">
 <section id="section-12">
       <h2 id="name-design-rationale-merkle-roo">
-<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-design-rationale-merkle-roo" class="section-name selfRef">Design Rationale: Merkle Root in Token</a>
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-design-rationale-merkle-roo" class="section-name selfRef">Design Rationale: merkle Root in Token</a>
       </h2>
-<p id="section-12-1">The inference chain follows the same merkle root architecture as the intent chain (see [[!I-D.draft-mw-spice-intent-chain]] Design Rationale for the detailed comparison). The key trade-offs are:<a href="#section-12-1" class="pilcrow">¶</a></p>
-<p id="section-12-2"><strong>Why not inline?</strong> Inference proofs are large — STARK proofs are ~50KB, TEE quotes are ~2-4KB. A session with multiple inference operations would produce tokens exceeding practical header limits.<a href="#section-12-2" class="pilcrow">¶</a></p>
-<p id="section-12-3"><strong>Why merkle root over simple hash?</strong> Selective verification. A Resource Server performing a tiered check can verify a single inference proof using O(log n) sibling hashes without fetching the entire chain. This is critical for the tiered verification strategy where medium-risk operations verify only TEE quotes without full ZKML verification.<a href="#section-12-3" class="pilcrow">¶</a></p>
-<p id="section-12-4"><strong>Why not fully external (no root in token)?</strong> Without a root hash in the token, there is no cryptographic binding between the bearer token and the inference proofs. The root hash acts as a commitment from the Authorization Server that the proofs exist and hash to a known value.<a href="#section-12-4" class="pilcrow">¶</a></p>
+<p id="section-12-1">The inference chain follows the same merkle root architecture as the intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design Rationale for the detailed comparison). The same trade-offs apply, with additional motivation: inference proofs are large (STARK proofs ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens impractical. The merkle root enables selective verification of individual proofs using O(log n) sibling hashes, which is critical for the tiered verification strategy.<a href="#section-12-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -2848,13 +2926,13 @@ policy_met {
         <h3 id="name-jwt-claim-registration">
 <a href="#section-13.1" class="section-number selfRef">13.1. </a><a href="#name-jwt-claim-registration" class="section-name selfRef">JWT Claim Registration</a>
         </h3>
-<p id="section-13.1-1">This document requests registration of the following claims in the "JSON Web Token Claims" registry established by [[RFC7519]]:<a href="#section-13.1-1" class="pilcrow">¶</a></p>
+<p id="section-13.1-1">This document requests registration of the following claims in the "JSON Web Token Claims" registry established by {{!RFC7519}}:<a href="#section-13.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-13.1-2.1">
             <strong>Claim Name</strong>: <code>inference_root</code><a href="#section-13.1-2.1" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-13.1-2.2">
-            <strong>Claim Description</strong>: Merkle root hash of the inference chain for computational provenance verification.<a href="#section-13.1-2.2" class="pilcrow">¶</a>
+            <strong>Claim Description</strong>: merkle root hash of the inference chain for computational provenance verification.<a href="#section-13.1-2.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-13.1-2.3">
             <strong>Change Controller</strong>: IETF<a href="#section-13.1-2.3" class="pilcrow">¶</a>
@@ -2863,7 +2941,7 @@ policy_met {
             <p id="section-13.1-2.4.1"><strong>Specification Document(s)</strong>: [this document]<a href="#section-13.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-13.1-2.5">
-            <p id="section-13.1-2.5.1"><strong>Claim Name</strong>: <code>inference_alg</code><a href="#section-13.1-2.5.1" class="pilcrow">¶</a></p>
+            <p id="section-13.1-2.5.1"><strong>Claim Name</strong>: <code>inference_proof_type</code><a href="#section-13.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-13.1-2.6">
             <p id="section-13.1-2.6.1"><strong>Claim Description</strong>: Primary proof algorithm used in the inference chain.<a href="#section-13.1-2.6.1" class="pilcrow">¶</a></p>
@@ -2894,13 +2972,13 @@ policy_met {
         <h3 id="name-cwt-claim-registration">
 <a href="#section-13.2" class="section-number selfRef">13.2. </a><a href="#name-cwt-claim-registration" class="section-name selfRef">CWT Claim Registration</a>
         </h3>
-<p id="section-13.2-1">This document requests registration of the following claims in the "CBOR Web Token (CWT) Claims" registry established by [[RFC8392]]:<a href="#section-13.2-1" class="pilcrow">¶</a></p>
+<p id="section-13.2-1">This document requests registration of the following claims in the "CBOR Web Token (CWT) Claims" registry established by {{!RFC8392}}:<a href="#section-13.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-13.2-2.1">
             <strong>Claim Name</strong>: <code>inference_root</code><a href="#section-13.2-2.1" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-13.2-2.2">
-            <strong>Claim Description</strong>: Merkle root hash of the inference chain.<a href="#section-13.2-2.2" class="pilcrow">¶</a>
+            <strong>Claim Description</strong>: merkle root hash of the inference chain.<a href="#section-13.2-2.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-13.2-2.3">
             <strong>CBOR Key</strong>: TBD (e.g., 60)<a href="#section-13.2-2.3" class="pilcrow">¶</a>
@@ -2933,7 +3011,7 @@ policy_met {
             <p id="section-13.2-2.12.1"><strong>Specification Document(s)</strong>: [this document]<a href="#section-13.2-2.12.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-13.2-2.13">
-            <p id="section-13.2-2.13.1"><strong>Claim Name</strong>: <code>inference_alg</code><a href="#section-13.2-2.13.1" class="pilcrow">¶</a></p>
+            <p id="section-13.2-2.13.1"><strong>Claim Name</strong>: <code>inference_proof_type</code><a href="#section-13.2-2.13.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-13.2-2.14">
             <p id="section-13.2-2.14.1"><strong>Claim Description</strong>: Primary proof algorithm used in the inference chain.<a href="#section-13.2-2.14.1" class="pilcrow">¶</a></p>
@@ -2965,11 +3043,12 @@ policy_met {
   "iss": "https://auth.example.com",
   "sub": "user-alice",
   "aud": "https://api.example.com",
-  "jti": "sess-uuid-12345",
+  "jti": "tok-fff-67890",
   "iat": 1700000000,
   "exp": 1700003600,
 
   "session": {
+    "session_id": "sess-uuid-12345",
     "type": "human_initiated",
     "initiator": "user-alice",
     "approval_ref": "approval-uuid-789",
@@ -3002,7 +3081,7 @@ policy_met {
     "https://intent-log.example.com/sessions/sess-uuid-12345",
 
   "inference_root": "sha256:xyz789...",
-  "inference_alg": "tee_h100",
+  "inference_proof_type": "tee_h100",
   "inference_registry":
     "https://proof-log.example.com/sessions/sess-uuid-12345"
 }
