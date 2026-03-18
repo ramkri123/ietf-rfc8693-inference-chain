@@ -12,7 +12,7 @@
 </postal><email>diego.r.lopez@telefonica.com</email>
 </address></author><author initials="S." surname="Addepalli" fullname="Srinivasa Addepalli"><organization>Aryaka</organization><address><postal><street></street>
 </postal><email>srinivasa.addepalli@aryaka.com</email>
-</address></author><date year="2026" month="March" day="10"></date>
+</address></author><date year="2026" month="March" day="18"></date>
 <area>Security</area>
 <workgroup>SPICE</workgroup>
 <keyword>inference chain</keyword>
@@ -25,7 +25,7 @@
 
 <abstract>
 <t>This document defines the <tt>inference_root</tt> claim as a companion to the <tt>actor_chain</tt> claim ({{!I-D.draft-mw-spice-actor-chain}}) and the <tt>intent_root</tt> claim ({{!I-D.draft-mw-spice-intent-chain}}). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.</t>
-<t>The inference chain leverages two complementary mechanisms: Zero-Knowledge Machine Learning (ZKML) proofs for mathematical certainty, and Trusted Execution Environment (TEE) attestation quotes for production-scale AI workloads. The full inference chain is stored as ordered logs, with only the merkle root included in the OAuth token for efficiency.</t>
+<t>The inference chain leverages two complementary mechanisms: Zero-Knowledge Machine Learning (ZKML) proofs for mathematical certainty, and Trusted Execution Environment (TEE) attestation quotes for production-scale AI workloads. The full inference chain is stored as ordered logs, with only the Merkle root included in the OAuth token for efficiency.</t>
 <t>Together, the three chains — actor, intent, and inference — form a complete &quot;Truth Stack&quot; for autonomous AI agent governance.</t>
 </abstract>
 
@@ -105,7 +105,7 @@
 <tr>
 <td align="left"><strong>Intent</strong></td>
 <td align="left">Audit Plane</td>
-<td align="left">merkle root only</td>
+<td align="left">Merkle root only</td>
 <td align="left">External registry</td>
 <td align="left">Audit systems, forensic investigators</td>
 </tr>
@@ -113,7 +113,7 @@
 <tr>
 <td align="left"><strong>Inference</strong></td>
 <td align="left">Audit Plane</td>
-<td align="left">merkle root only</td>
+<td align="left">Merkle root only</td>
 <td align="left">External registry</td>
 <td align="left">Auditors, compliance systems</td>
 </tr>
@@ -133,7 +133,7 @@
 <li><strong>Computational Provenance</strong>: Cryptographic proof that a specific model produced a specific output.</li>
 <li><strong>Mechanism Agnostic</strong>: Support both ZKML proofs and TEE attestation quotes as proof types.</li>
 <li><strong>Binding to Intent Chain</strong>: Inference proofs are bound to specific intent chain entries via content hashes.</li>
-<li><strong>Efficiency</strong>: Only merkle root in token; full proofs in registry.</li>
+<li><strong>Efficiency</strong>: Only Merkle root in token; full proofs in registry.</li>
 <li><strong>Incremental Adoption</strong>: Deployable alongside existing actor and intent chains without requiring changes to those specifications.</li>
 </ol>
 </section>
@@ -148,7 +148,7 @@
 <dt>Inference Chain Entry:</dt>
 <dd>A record binding a specific AI agent output to a cryptographic proof of the computational process that produced it.</dd>
 <dt>Inference Root:</dt>
-<dd>The merkle root hash of the complete inference chain, included in the OAuth token via the <tt>inference_root</tt> claim.</dd>
+<dd>The Merkle root hash of the complete inference chain, included in the OAuth token via the <tt>inference_root</tt> claim.</dd>
 <dt>Inference Registry:</dt>
 <dd>An append-only ordered log storing the full inference chain entries, partitioned by session.</dd>
 <dt>ZKML Proof:</dt>
@@ -460,7 +460,7 @@
 <td align="left"><tt>inference_digest</tt></td>
 <td align="left">string</td>
 <td align="left">REQUIRED</td>
-<td align="left">Cumulative hash for merkle tree</td>
+<td align="left">Cumulative hash for Merkle tree</td>
 </tr>
 
 <tr>
@@ -535,12 +535,12 @@
 ]]></sourcecode>
 </section>
 
-<section anchor="merkle-tree-construction"><name>merkle Tree Construction</name>
-<t>The inference chain merkle tree follows the same construction algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-intent-chain}} Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the <tt>inference_root</tt> claim.</t>
+<section anchor="merkle-tree-construction"><name>Merkle Tree Construction</name>
+<t>The inference chain Merkle tree follows the same construction algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-intent-chain}} Section 5.3). Leaf nodes are the SHA-256 hashes of canonically serialized inference chain entries. The resulting root hash is included in the OAuth token as the <tt>inference_root</tt> claim.</t>
 </section>
 
-<section anchor="merkle-root-in-token"><name>merkle Root in Token</name>
-<t>Only the merkle root is included in the OAuth token:</t>
+<section anchor="merkle-root-in-token"><name>Merkle Root in Token</name>
+<t>Only the Merkle root is included in the OAuth token:</t>
 
 <sourcecode type="json"><![CDATA[{
   "inference_root": "sha256:xyz789...",
@@ -564,7 +564,7 @@
 <td align="left"><tt>inference_root</tt></td>
 <td align="left">string</td>
 <td align="left">REQUIRED</td>
-<td align="left">merkle root hash of inference chain</td>
+<td align="left">Merkle root hash of inference chain</td>
 </tr>
 
 <tr>
@@ -647,7 +647,7 @@
 <tr>
 <td align="left"><tt>inference_root</tt></td>
 <td align="left">string</td>
-<td align="left">merkle root hash of inference chain</td>
+<td align="left">Merkle root hash of inference chain</td>
 </tr>
 
 <tr>
@@ -906,7 +906,7 @@
 </section>
 
 <section anchor="zkml-proof-size-considerations"><name>ZKML Proof Size Considerations</name>
-<t>STARK-based proofs can be tens of kilobytes. The merkle tree architecture ensures this does not affect token size (only the root hash is in the JWT). However, deployments using STARKs SHOULD consider:</t>
+<t>STARK-based proofs can be tens of kilobytes. The Merkle tree architecture ensures this does not affect token size (only the root hash is in the JWT). However, deployments using STARKs SHOULD consider:</t>
 
 <ul spacing="compact">
 <li>Pre-computing and caching proofs for frequently-used model/input combinations.</li>
@@ -963,7 +963,7 @@
 <section anchor="scalability-considerations"><name>Scalability Considerations</name>
 
 <ul spacing="compact">
-<li><strong>Async ZKML</strong>: ZKML proofs MAY be generated asynchronously after inference. The intent chain entry is appended immediately; the inference chain entry is appended when the proof is ready. The merkle root is recomputed at token exchange time.</li>
+<li><strong>Async ZKML</strong>: ZKML proofs MAY be generated asynchronously after inference. The intent chain entry is appended immediately; the inference chain entry is appended when the proof is ready. The Merkle root is recomputed at token exchange time.</li>
 <li><strong>Proof Batching</strong>: Multiple inference operations MAY be batched into a single ZKML proof using recursive composition, reducing verification overhead.</li>
 <li><strong>Quote Caching</strong>: TEE quotes for the same enclave measurement MAY be cached for a configurable period, reducing quote generation overhead.</li>
 </ul>
@@ -1029,13 +1029,13 @@
 <ul spacing="compact">
 <li><strong>Real-time applications</strong> (chat, interactive agents, API serving): Use TEE attestation quotes exclusively. TEE proof generation adds millisecond-level overhead and is compatible with production-scale LLMs (100B+ parameters).</li>
 <li><strong>Batch/offline applications</strong> (document generation, model evaluation, regulatory reporting): ZKML proofs provide mathematical certainty independent of hardware trust. Proof generation latency (minutes to hours) is acceptable when not on the critical path.</li>
-<li><strong>Hybrid deployments</strong>: Use TEE quotes for real-time inference and generate ZKML proofs asynchronously for high-value operations, appending them to the inference chain after the fact. The merkle root is recomputed at the next token exchange.</li>
+<li><strong>Hybrid deployments</strong>: Use TEE quotes for real-time inference and generate ZKML proofs asynchronously for high-value operations, appending them to the inference chain after the fact. The Merkle root is recomputed at the next token exchange.</li>
 </ul>
 </section>
 </section>
 
-<section anchor="design-rationale-merkle-root-in-token"><name>Design Rationale: merkle Root in Token</name>
-<t>The inference chain follows the same merkle root architecture as the intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design Rationale for the detailed comparison). The same trade-offs apply, with additional motivation: inference proofs are large (STARK proofs ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens impractical. The merkle root enables selective verification of individual proofs using O(log n) sibling hashes, which is critical for the tiered verification strategy.</t>
+<section anchor="design-rationale-merkle-root-in-token"><name>Design Rationale: Merkle Root in Token</name>
+<t>The inference chain follows the same Merkle root architecture as the intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design Rationale for the detailed comparison). The same trade-offs apply, with additional motivation: inference proofs are large (STARK proofs ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens impractical. The Merkle root enables selective verification of individual proofs using O(log n) sibling hashes, which is critical for the tiered verification strategy.</t>
 </section>
 
 <section anchor="iana-considerations"><name>IANA Considerations</name>
@@ -1045,7 +1045,7 @@
 
 <ul>
 <li><strong>Claim Name</strong>: <tt>inference_root</tt></li>
-<li><strong>Claim Description</strong>: merkle root hash of the inference chain for computational provenance verification.</li>
+<li><strong>Claim Description</strong>: Merkle root hash of the inference chain for computational provenance verification.</li>
 <li><strong>Change Controller</strong>: IETF</li>
 <li><t><strong>Specification Document(s)</strong>: [this document]</t>
 </li>
@@ -1073,7 +1073,7 @@
 
 <ul>
 <li><strong>Claim Name</strong>: <tt>inference_root</tt></li>
-<li><strong>Claim Description</strong>: merkle root hash of the inference chain.</li>
+<li><strong>Claim Description</strong>: Merkle root hash of the inference chain.</li>
 <li><strong>CBOR Key</strong>: TBD (e.g., 60)</li>
 <li><strong>Claim Type</strong>: tstr</li>
 <li><strong>Change Controller</strong>: IETF</li>

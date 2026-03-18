@@ -7,7 +7,7 @@ ipr = "trust200902"
 area = "Security"
 workgroup = "SPICE"
 keyword = ["inference chain", "spice", "computational provenance", "AI agents", "ZKML", "TEE attestation", "confidential computing"]
-date = 2026-03-10
+date = 2026-03-18
 
 [seriesInfo]
 name = "Internet-Draft"

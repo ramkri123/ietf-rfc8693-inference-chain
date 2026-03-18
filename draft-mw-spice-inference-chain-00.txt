@@ -5,12 +5,12 @@
 SPICE                                                        R. Krishnan
 Internet-Draft                                       JPMorgan Chase & Co
 Intended status: Informational                                 A. Prasad
-Expires: 11 September 2026                                        Oracle
+Expires: 19 September 2026                                        Oracle
                                                                 D. Lopez
                                                               Telefonica
                                                             S. Addepalli
                                                                   Aryaka
-                                                           10 March 2026
+                                                           18 March 2026
 
 
 Cryptographically Verifiable Inference Chain for AI Agent Computational
@@ -32,7 +32,7 @@ Abstract
    Knowledge Machine Learning (ZKML) proofs for mathematical certainty,
    and Trusted Execution Environment (TEE) attestation quotes for
    production-scale AI workloads.  The full inference chain is stored as
-   ordered logs, with only the merkle root included in the OAuth token
+   ordered logs, with only the Merkle root included in the OAuth token
    for efficiency.
 
    Together, the three chains — actor, intent, and inference — form a
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 1]
+Krishnan, et al.        Expires 19 September 2026               [Page 1]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -63,7 +63,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 September 2026.
+   This Internet-Draft will expire on 19 September 2026.
 
 Copyright Notice
 
@@ -96,8 +96,8 @@ Table of Contents
      4.2.  Binding to Intent Chain . . . . . . . . . . . . . . . . .  12
    5.  Storage Architecture  . . . . . . . . . . . . . . . . . . . .  13
      5.1.  Inference Registry  . . . . . . . . . . . . . . . . . . .  13
-     5.2.  merkle Tree Construction  . . . . . . . . . . . . . . . .  14
-     5.3.  merkle Root in Token  . . . . . . . . . . . . . . . . . .  14
+     5.2.  Merkle Tree Construction  . . . . . . . . . . . . . . . .  14
+     5.3.  Merkle Root in Token  . . . . . . . . . . . . . . . . . .  14
    6.  Token Structure . . . . . . . . . . . . . . . . . . . . . . .  15
      6.1.  Combined Token Format (Full Truth Stack)  . . . . . . . .  15
      6.2.  Claim Definitions . . . . . . . . . . . . . . . . . . . .  17
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 2]
+Krishnan, et al.        Expires 19 September 2026               [Page 2]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -142,7 +142,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
      11.5.  Registry Availability  . . . . . . . . . . . . . . . . .  24
        11.5.1.  Proof Size and Storage . . . . . . . . . . . . . . .  24
      11.6.  Performance Guidance: TEE vs ZKML  . . . . . . . . . . .  25
-   12. Design Rationale: merkle Root in Token  . . . . . . . . . . .  26
+   12. Design Rationale: Merkle Root in Token  . . . . . . . . . . .  26
    13. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  26
      13.1.  JWT Claim Registration . . . . . . . . . . . . . . . . .  26
      13.2.  CWT Claim Registration . . . . . . . . . . . . . . . . .  27
@@ -165,7 +165,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 3]
+Krishnan, et al.        Expires 19 September 2026               [Page 3]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -221,7 +221,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 4]
+Krishnan, et al.        Expires 19 September 2026               [Page 4]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -234,11 +234,11 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
     |             | Plane | inline     |          | Party (real-time |
     |             |       |            |          | authorization)   |
     +-------------+-------+------------+----------+------------------+
-    | *Intent*    | Audit | merkle     | External | Audit systems,   |
+    | *Intent*    | Audit | Merkle     | External | Audit systems,   |
     |             | Plane | root only  | registry | forensic         |
     |             |       |            |          | investigators    |
     +-------------+-------+------------+----------+------------------+
-    | *Inference* | Audit | merkle     | External | Auditors,        |
+    | *Inference* | Audit | Merkle     | External | Auditors,        |
     |             | Plane | root only  | registry | compliance       |
     |             |       |            |          | systems          |
     +-------------+-------+------------+----------+------------------+
@@ -263,7 +263,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
        attestation quotes as proof types.
    3.  *Binding to Intent Chain*: Inference proofs are bound to specific
        intent chain entries via content hashes.
-   4.  *Efficiency*: Only merkle root in token; full proofs in registry.
+   4.  *Efficiency*: Only Merkle root in token; full proofs in registry.
    5.  *Incremental Adoption*: Deployable alongside existing actor and
        intent chains without requiring changes to those specifications.
 
@@ -277,7 +277,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 5]
+Krishnan, et al.        Expires 19 September 2026               [Page 5]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -288,7 +288,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
    Inference Chain Entry:  A record binding a specific AI agent output
       to a cryptographic proof of the computational process that
       produced it.
-   Inference Root:  The merkle root hash of the complete inference
+   Inference Root:  The Merkle root hash of the complete inference
       chain, included in the OAuth token via the inference_root claim.
    Inference Registry:  An append-only ordered log storing the full
       inference chain entries, partitioned by session.
@@ -333,7 +333,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 6]
+Krishnan, et al.        Expires 19 September 2026               [Page 6]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -389,7 +389,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 7]
+Krishnan, et al.        Expires 19 September 2026               [Page 7]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -445,7 +445,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 8]
+Krishnan, et al.        Expires 19 September 2026               [Page 8]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -501,7 +501,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026               [Page 9]
+Krishnan, et al.        Expires 19 September 2026               [Page 9]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -557,7 +557,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 10]
+Krishnan, et al.        Expires 19 September 2026              [Page 10]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -613,7 +613,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 11]
+Krishnan, et al.        Expires 19 September 2026              [Page 11]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -647,7 +647,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
    |                   |        |          | was generated             |
    +-------------------+--------+----------+---------------------------+
    | inference_digest  | string | REQUIRED | Cumulative hash for       |
-   |                   |        |          | merkle tree               |
+   |                   |        |          | Merkle tree               |
    +-------------------+--------+----------+---------------------------+
    | inference_sig     | string | REQUIRED | Signature over            |
    |                   |        |          | inference_digest          |
@@ -669,7 +669,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 12]
+Krishnan, et al.        Expires 19 September 2026              [Page 12]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -725,7 +725,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 13]
+Krishnan, et al.        Expires 19 September 2026              [Page 13]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -747,17 +747,17 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
      }
    }
 
-5.2.  merkle Tree Construction
+5.2.  Merkle Tree Construction
 
-   The inference chain merkle tree follows the same construction
+   The inference chain Merkle tree follows the same construction
    algorithm as the intent chain (defined in {{!I-D.draft-mw-spice-
    intent-chain}} Section 5.3).  Leaf nodes are the SHA-256 hashes of
    canonically serialized inference chain entries.  The resulting root
    hash is included in the OAuth token as the inference_root claim.
 
-5.3.  merkle Root in Token
+5.3.  Merkle Root in Token
 
-   Only the merkle root is included in the OAuth token:
+   Only the Merkle root is included in the OAuth token:
 
    {
      "inference_root": "sha256:xyz789...",
@@ -781,7 +781,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 14]
+Krishnan, et al.        Expires 19 September 2026              [Page 14]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -789,7 +789,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
       +======================+========+==========+==================+
       | Field                | Type   | Required | Description      |
       +======================+========+==========+==================+
-      | inference_root       | string | REQUIRED | merkle root hash |
+      | inference_root       | string | REQUIRED | Merkle root hash |
       |                      |        |          | of inference     |
       |                      |        |          | chain            |
       +----------------------+--------+----------+------------------+
@@ -837,7 +837,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 15]
+Krishnan, et al.        Expires 19 September 2026              [Page 15]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -893,7 +893,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 16]
+Krishnan, et al.        Expires 19 September 2026              [Page 16]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -903,7 +903,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
        +======================+========+==========================+
        | Claim                | Type   | Description              |
        +======================+========+==========================+
-       | inference_root       | string | merkle root hash of      |
+       | inference_root       | string | Merkle root hash of      |
        |                      |        | inference chain          |
        +----------------------+--------+--------------------------+
        | inference_proof_type | string | Primary proof algorithm  |
@@ -949,7 +949,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 17]
+Krishnan, et al.        Expires 19 September 2026              [Page 17]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1005,7 +1005,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 18]
+Krishnan, et al.        Expires 19 September 2026              [Page 18]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1061,7 +1061,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 19]
+Krishnan, et al.        Expires 19 September 2026              [Page 19]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1117,7 +1117,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 20]
+Krishnan, et al.        Expires 19 September 2026              [Page 20]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1163,7 +1163,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 9.6.  ZKML Proof Size Considerations
 
-   STARK-based proofs can be tens of kilobytes.  The merkle tree
+   STARK-based proofs can be tens of kilobytes.  The Merkle tree
    architecture ensures this does not affect token size (only the root
    hash is in the JWT).  However, deployments using STARKs SHOULD
    consider:
@@ -1173,7 +1173,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 21]
+Krishnan, et al.        Expires 19 September 2026              [Page 21]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1229,7 +1229,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 22]
+Krishnan, et al.        Expires 19 September 2026              [Page 22]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1263,7 +1263,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
    *  *Async ZKML*: ZKML proofs MAY be generated asynchronously after
       inference.  The intent chain entry is appended immediately; the
       inference chain entry is appended when the proof is ready.  The
-      merkle root is recomputed at token exchange time.
+      Merkle root is recomputed at token exchange time.
    *  *Proof Batching*: Multiple inference operations MAY be batched
       into a single ZKML proof using recursive composition, reducing
       verification overhead.
@@ -1285,7 +1285,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 23]
+Krishnan, et al.        Expires 19 September 2026              [Page 23]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1341,7 +1341,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 24]
+Krishnan, et al.        Expires 19 September 2026              [Page 24]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1386,7 +1386,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
       the critical path.
    *  *Hybrid deployments*: Use TEE quotes for real-time inference and
       generate ZKML proofs asynchronously for high-value operations,
-      appending them to the inference chain after the fact.  The merkle
+      appending them to the inference chain after the fact.  The Merkle
       root is recomputed at the next token exchange.
 
 
@@ -1397,19 +1397,19 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 25]
+Krishnan, et al.        Expires 19 September 2026              [Page 25]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
-12.  Design Rationale: merkle Root in Token
+12.  Design Rationale: Merkle Root in Token
 
-   The inference chain follows the same merkle root architecture as the
+   The inference chain follows the same Merkle root architecture as the
    intent chain (see {{!I-D.draft-mw-spice-intent-chain}} Design
    Rationale for the detailed comparison).  The same trade-offs apply,
    with additional motivation: inference proofs are large (STARK proofs
    ~50KB, TEE quotes ~2-4KB), making inline embedding in tokens
-   impractical.  The merkle root enables selective verification of
+   impractical.  The Merkle root enables selective verification of
    individual proofs using O(log n) sibling hashes, which is critical
    for the tiered verification strategy.
 
@@ -1422,7 +1422,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
    *  *Claim Name*: inference_root
 
-   *  *Claim Description*: merkle root hash of the inference chain for
+   *  *Claim Description*: Merkle root hash of the inference chain for
       computational provenance verification.
 
    *  *Change Controller*: IETF
@@ -1453,7 +1453,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 26]
+Krishnan, et al.        Expires 19 September 2026              [Page 26]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1465,7 +1465,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
    *  *Claim Name*: inference_root
 
-   *  *Claim Description*: merkle root hash of the inference chain.
+   *  *Claim Description*: Merkle root hash of the inference chain.
 
    *  *CBOR Key*: TBD (e.g., 60)
 
@@ -1509,7 +1509,7 @@ Appendix A.  Full Token Example (Three-Chain Governance)
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 27]
+Krishnan, et al.        Expires 19 September 2026              [Page 27]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1565,7 +1565,7 @@ Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 28]
+Krishnan, et al.        Expires 19 September 2026              [Page 28]
 
 Internet-Draft            SPICE-INFERENCE-CHAIN               March 2026
 
@@ -1621,4 +1621,4 @@ Authors' Addresses
 
 
 
-Krishnan, et al.        Expires 11 September 2026              [Page 29]
+Krishnan, et al.        Expires 19 September 2026              [Page 29]
