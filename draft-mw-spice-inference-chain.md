@@ -51,7 +51,7 @@ organization = "Aryaka"
 
 .# Abstract
 
-This document defines the `inference_root` claim as a companion to the `actor_chain` claim ({{!I-D.draft-mw-spice-actor-chain}}) and the `intent_root` claim ({{!I-D.draft-mw-spice-intent-chain}}). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.
+This document defines the `inference_root` claim as a companion to the `act` claim ({{!I-D.draft-mw-spice-actor-chain}}) and the `intc` claim ({{!I-D.draft-mw-spice-intent-chain}}). While the actor chain addresses delegation provenance (WHO) and the intent chain addresses content provenance (WHAT), the inference chain addresses computational provenance (HOW) — providing cryptographic proof that a claimed AI model actually performed the inference that produced a given output.
 
 The inference chain leverages two complementary mechanisms: Zero-Knowledge Machine Learning (ZKML) proofs for mathematical certainty, and Trusted Execution Environment (TEE) attestation quotes for production-scale AI workloads. The full inference chain is stored as ordered logs, with only the Merkle root included in the OAuth token for efficiency.
 
@@ -90,26 +90,14 @@ This specification completes the three-axis "Truth Stack":
 | **Intent** | Audit Plane | Merkle root only | External registry | Audit systems, forensic investigators |
 | **Inference** | Audit Plane | Merkle root only | External registry | Auditors, compliance systems |
 
-The three chains are independent and composable:
-
-- **Actor + Intent**: Identity and content governance without computational proof (sufficient for rule-based systems).
-- **Actor + Inference**: Identity and computational governance without content transformation tracking (sufficient for single-agent systems).
-- **All Three**: Full governance for multi-agent pipelines with content transformation and computational integrity.
-
-## Design Goals
-
-1. **Computational Provenance**: Cryptographic proof that a specific model produced a specific output.
-2. **Mechanism Agnostic**: Support both ZKML proofs and TEE attestation quotes as proof types.
-3. **Binding to Intent Chain**: Inference proofs are bound to specific intent chain entries via content hashes.
-4. **Efficiency**: Only Merkle root in token; full proofs in registry.
-5. **Incremental Adoption**: Deployable alongside existing actor and intent chains without requiring changes to those specifications.
+The three chains are independent and composable. A deployment MAY use any subset (actor-only, actor+intent, all three).
 
 # Terminology
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all capitals, as shown here.
 
 Inference Chain:
-: An ordered sequence of Inference Chain Entries providing cryptographic proof of the computational processes that produced AI agent outputs within a session.
+: An ordered sequence of Inference Chain Entries providing cryptographic proof of the computational processes that produced AI agent outputs within a workflow.
 
 Inference Chain Entry:
 : A record binding a specific AI agent output to a cryptographic proof of the computational process that produced it.
@@ -118,7 +106,7 @@ Inference Root:
 : The Merkle root hash of the complete inference chain, included in the OAuth token via the `inference_root` claim.
 
 Inference Registry:
-: An append-only ordered log storing the full inference chain entries, partitioned by session.
+: An append-only ordered log storing the full inference chain entries, partitioned by `acti`.
 
 ZKML Proof:
 : A Zero-Knowledge proof (SNARK or STARK) demonstrating that a specific neural network with specific weights produced a specific output from a specific input, without revealing the model weights or input data.
@@ -322,19 +310,19 @@ The inference registry stores immutable inference chain entries as ordered logs,
 **Properties**:
 
 - Append-only (immutable)
-- Ordered by offset within session
-- Partitioned by session ID
+- Ordered by offset within workflow
+- Partitioned by `acti`
 - Eventual consistency acceptable
 
 > Inference registry entries MUST NOT contain OAuth tokens, bearer credentials, or signing keys. Entries contain only inference proofs, content hashes, metadata, and agent identities. The token references the registry via the `inference_registry` claim; the registry MUST NOT store or reference the token itself.
 
-Implementations SHOULD use an append-only log with tamper-evident guarantees and partitioned, ordered retrieval by session ID.
+Implementations SHOULD use an append-only log with tamper-evident guarantees and partitioned, ordered retrieval by `acti`.
 
 **Log Structure**:
 
 ```json
 {
-  "session_id": "sess-uuid-12345",
+  "acti": "wf-uuid-12345",
   "offset": 0,
   "entry": {
     "type": "tee_attestation",
@@ -378,7 +366,7 @@ Only the Merkle root is included in the OAuth token:
 
 ## Combined Token Format (Full Truth Stack)
 
-The complete token combines session, actor chain, intent chain, and inference chain:
+The complete token combines actor chain, intent chain, and inference chain:
 
 ```json
 {
@@ -386,41 +374,34 @@ The complete token combines session, actor chain, intent chain, and inference ch
   "sub": "user-alice",
   "aud": "https://api.example.com",
   "jti": "tok-eee-12345",
-  "sid": "sess-uuid-12345",
   "iat": 1700000000,
   "exp": 1700003600,
+  "actp": "declared-full",
+  "acti": "wf-uuid-12345",
 
-  "session": {
-    "session_id": "sess-uuid-12345",
-    "type": "human_initiated",
-    "initiator": "user-alice",
-    "approval_ref": "approval-uuid-789",
-    "max_chain_depth": 5
+  "act": {
+    "iss": "https://auth.example.com",
+    "sub": "spiffe://example.com/agent/analyst",
+    "act": {
+      "iss": "https://auth.example.com",
+      "sub": "spiffe://example.com/agent/orchestrator"
+    }
   },
 
-  "actor_chain": [
-    {
-      "sub":
-        "spiffe://example.com/agent/orchestrator",
-      "iss": "https://auth.example.com",
-      "iat": 1700000010
-    },
-    {
-      "sub":
-        "spiffe://example.com/agent/analyst",
-      "iss": "https://auth.example.com",
-      "iat": 1700000030
-    }
-  ],
-
-  "intent_root": "sha256:abc123...",
+  "intc": {
+    "ctx": "intent-chain-commitment-v1",
+    "halg": "sha-256",
+    "prev": "sha256:prior...",
+    "step_hash": "sha256:latest...",
+    "curr": "sha256:abc123..."
+  },
   "intent_registry":
-    "https://intent-log.example.com/sessions/sess-uuid-12345",
+    "https://intent-log.example.com/workflows/wf-uuid-12345",
 
   "inference_root": "sha256:xyz789...",
   "inference_proof_type": "tee_h100",
   "inference_registry":
-    "https://proof-log.example.com/sessions/sess-uuid-12345"
+    "https://proof-log.example.com/workflows/wf-uuid-12345"
 }
 ```
 
@@ -439,7 +420,7 @@ The complete token combines session, actor chain, intent chain, and inference ch
 A Relying Party receiving a token with all three chains performs a "Three-Point Check":
 
 1. **Identity** (Actor Chain): Is the delegation chain valid? Are all actors authorized?
-2. **Integrity** (Intent Chain): Does the content hash trail match the `intent_root`?
+2. **Integrity** (Intent Chain): Does the content hash trail match the `intc` commitment?
 3. **Validity** (Inference Chain): Does the computational proof verify against the `inference_root`?
 
 ## ZKML Proof Verification
@@ -475,68 +456,7 @@ Inference verification extends the tiered strategy from {{!I-D.draft-mw-spice-in
 | High | Sync | Full | TEE quote check | Financial decisions |
 | Critical | Sync | Full | Full ZKML + TEE | Regulatory, high-stakes |
 
-# Policy Enforcement
-
-## Policy Examples
-
-### Require Inference Proof for All Agent Outputs
-
-```
-require_inference_proofs {
-    intent_chain := get_intent_chain(
-        input.intent_root)
-    inference_chain := get_inference_chain(
-        input.inference_root)
-
-    agent_outputs := [i |
-        intent_chain[i].type == "non_deterministic"]
-
-    every i in agent_outputs {
-        some j
-        inference_chain[j].intent_entry_ref == i
-    }
-}
-```
-
-### Require TEE for Financial Operations
-
-```
-require_tee_for_finance {
-    input.action in ["transfer", "approve",
-                      "underwrite"]
-
-    inference_chain := get_inference_chain(
-        input.inference_root)
-
-    every entry in inference_chain {
-        entry.type in ["tee_attestation",
-                       "hybrid_proof"]
-    }
-}
-```
-
-### Block Specific Model Versions
-
-```
-block_deprecated_models {
-    inference_chain := get_inference_chain(
-        input.inference_root)
-
-    every entry in inference_chain {
-        not entry.model_id in
-            data.deprecated_models
-    }
-}
-```
-
-## Integration with Policy Engines
-
-The inference chain claims are designed for consumption by policy engines such as Open Policy Agent (OPA). A policy engine SHOULD:
-
-1. Verify actor chain integrity (per {{!I-D.draft-mw-spice-actor-chain}}).
-2. Verify intent chain integrity (per {{!I-D.draft-mw-spice-intent-chain}}).
-3. Verify `inference_root` and `inference_registry` are present and non-empty.
-4. Evaluate deployment-specific requirements such as proof type (ZKML vs TEE), model version policies, and hardware platform requirements.
+The inference chain claims are designed for consumption by policy engines. A policy engine SHOULD verify actor and intent chain integrity, check `inference_root` and `inference_registry` presence, and evaluate deployment-specific requirements (proof type, model version policies, hardware platform).
 
 # Security Considerations
 
@@ -617,65 +537,15 @@ Inference chain entries MAY use Selective Disclosure (SD-JWT) {{!I-D.ietf-oauth-
 
 # Implementation Guidance
 
-## Current ZKML Landscape
+As of this writing, ZKML is practical for models up to ~100M parameters. Deployments SHOULD use TEE attestation as a production bridge and plan for ZKML scalability improvements.
 
-As of this writing, ZKML is practical for models up to approximately 100 million parameters. Active research is scaling this boundary through optimized circuit designs and recursive proof composition.
+For TEE-based proofs: deploy the model inside a TEE enclave, generate a hardware quote binding `sha256(input_hash || output_hash)` to the enclave measurement, and append the quote to the inference registry. ZKML proofs MAY be generated asynchronously after inference; the Merkle root is recomputed at token exchange time.
 
-Deployments SHOULD plan for ZKML scalability improvements and MAY use TEE attestation as a near-term bridge.
+In multi-AS deployments, each AS appends inference entries under the workflow's `acti` partition following the same pattern as Intent Registry ({{!I-D.draft-mw-spice-intent-chain}}). A federated IAM/IdM platform MAY host the inference registry alongside other chain registries — see {{!I-D.draft-mw-spice-actor-chain}} Section "Registry Hosting" for requirements.
 
-## TEE Integration
+Inference proofs are uniquely valuable because they cannot be regenerated — the exact model state may no longer be available. Deployments SHOULD replicate entries across availability zones and use high-durability append-only logs. STARK-based proofs (~50KB) may exceed IAM data store limits; deployments SHOULD use dedicated object stores with the IAM platform as index and access control layer.
 
-For TEE-based inference proofs:
-
-1. Deploy the model inside a TEE enclave (e.g., NVIDIA Confidential Computing on H100).
-2. At inference time, generate a hardware quote binding the input hash and output hash to the enclave measurement.
-3. Append the quote as a TEE attestation entry to the inference registry.
-4. The quote's `report_data` field MUST contain `sha256(input_hash || output_hash)` to bind the proof to specific content.
-
-## Scalability Considerations
-
-- **Async ZKML**: ZKML proofs MAY be generated asynchronously after inference. The intent chain entry is appended immediately; the inference chain entry is appended when the proof is ready. The Merkle root is recomputed at token exchange time.
-- **Proof Batching**: Multiple inference operations MAY be batched into a single ZKML proof using recursive composition, reducing verification overhead.
-- **Quote Caching**: TEE quotes for the same enclave measurement MAY be cached for a configurable period, reducing quote generation overhead.
-
-## Multi-AS Deployments
-
-In deployments involving multiple Authorization Servers, the inference registry is shared across all participating ASes under the same session partition. Each AS appends inference chain entries under the `sid` partition established at session initiation. The `inference_root` in each successive token is recomputed over all proof entries accumulated so far — it therefore differs at each hop as the chain grows. This is expected behavior: a relying party receiving a later token will see a larger `inference_root` than one receiving an earlier token in the same session. ASes do not need to share keys or coordinate directly — the session partition and append-only log semantics provide the necessary consistency, following the same pattern as the Actor Chain Registry ({{!I-D.draft-mw-spice-actor-chain}}) and Intent Registry ({{!I-D.draft-mw-spice-intent-chain}}).
-
-## Registry Availability
-
-Inference registry unavailability does not affect data-plane operation — the token's AS-signed `inference_root` is sufficient for request-time policy decisions. Per-entry proof verification is deferred to the audit plane.
-
-However, inference proofs are uniquely valuable because they cannot be regenerated after the fact — the exact model state, input, and execution environment may no longer be available. Deployments SHOULD:
-
-- Replicate inference registry entries across availability zones.
-- Use append-only log services designed for high durability (e.g., SCITT transparency logs).
-- Define a fail-mode policy: **fail-closed** for regulated workloads (e.g., financial, healthcare), or **fail-open** with verification gap logging for lower-risk workloads.
-
-A federated IAM/IdM platform (e.g., Keycloak, Microsoft Entra, Okta, PingFederate) MAY host the inference registry alongside the Actor Chain Registry and Intent Registry under the same session partition — see {{!I-D.draft-mw-spice-actor-chain}} Section "Registry Hosting" for detailed requirements.
-
-### Proof Size and Storage
-
-Inference proof payloads are significantly larger than actor chain entries (~0.5-1KB) or intent chain entries (~0.5-1KB):
-
-| Proof Type | Typical Size | Storage Implication |
-| :--- | :--- | :--- |
-| TEE attestation quote | ~2-4KB | Compatible with most IAM data stores |
-| Groth16 ZK proof | ~200 bytes | Compatible with most IAM data stores |
-| STARK proof | ~50KB | May exceed IAM data store blob limits |
-
-Most IAM/IdM platforms are not designed to store large binary blobs. Deployments that include STARK proofs SHOULD either:
-
-- Use a dedicated object store (e.g., S3, GCS, Azure Blob Storage) for proof payloads, with the IAM platform serving as the registry index and access control layer.
-- Or use a SCITT transparency log that natively supports variable-size entries.
-
-## Performance Guidance: TEE vs ZKML
-
-Deployments SHOULD select proof types based on their latency requirements:
-
-- **Real-time applications** (chat, interactive agents, API serving): Use TEE attestation quotes exclusively. TEE proof generation adds millisecond-level overhead and is compatible with production-scale LLMs (100B+ parameters).
-- **Batch/offline applications** (document generation, model evaluation, regulatory reporting): ZKML proofs provide mathematical certainty independent of hardware trust. Proof generation latency (minutes to hours) is acceptable when not on the critical path.
-- **Hybrid deployments**: Use TEE quotes for real-time inference and generate ZKML proofs asynchronously for high-value operations, appending them to the inference chain after the fact. The Merkle root is recomputed at the next token exchange.
+Real-time applications SHOULD use TEE attestation exclusively; batch applications MAY use ZKML for mathematical certainty independent of hardware trust.
 
 # Design Rationale: Merkle Root in Token
 
@@ -794,53 +664,4 @@ This document requests registration of the following claims in the "CBOR Web Tok
   <seriesInfo name="RFC" value="9334"/>
 </reference>
 
-# Full Token Example (Three-Chain Governance)
 
-```json
-{
-  "iss": "https://auth.example.com",
-  "sub": "user-alice",
-  "aud": "https://api.example.com",
-  "jti": "tok-fff-67890",
-  "iat": 1700000000,
-  "exp": 1700003600,
-
-  "session": {
-    "session_id": "sess-uuid-12345",
-    "type": "human_initiated",
-    "initiator": "user-alice",
-    "approval_ref": "approval-uuid-789",
-    "max_chain_depth": 5
-  },
-
-  "actor_chain": [
-    {
-      "sub":
-        "spiffe://example.com/agent/orchestrator",
-      "iss": "https://auth.example.com",
-      "iat": 1700000010,
-      "scope": "ticket:*",
-      "chain_digest": "sha256:aaa...",
-      "chain_sig": "eyJhbGci..."
-    },
-    {
-      "sub":
-        "spiffe://example.com/agent/analyst",
-      "iss": "https://auth.example.com",
-      "iat": 1700000030,
-      "scope": "analysis:run",
-      "chain_digest": "sha256:bbb...",
-      "chain_sig": "eyJhbGci..."
-    }
-  ],
-
-  "intent_root": "sha256:abc123...",
-  "intent_registry":
-    "https://intent-log.example.com/sessions/sess-uuid-12345",
-
-  "inference_root": "sha256:xyz789...",
-  "inference_proof_type": "tee_h100",
-  "inference_registry":
-    "https://proof-log.example.com/sessions/sess-uuid-12345"
-}
-```
